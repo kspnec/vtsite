@@ -35,3 +35,8 @@ def decode_token(token: str) -> int | None:
         return int(user_id)
     except JWTError:
         return None
+
+
+# Alias used by routers that need to decode tokens directly
+def decode_access_token(token: str) -> int | None:
+    return decode_token(token)

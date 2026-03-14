@@ -4,7 +4,8 @@ Safe to run multiple times (skips existing emails).
 """
 
 from app.core.security import hash_password
-from app.models.user import CurrentStatus, User
+from app.models.initiative import Initiative, InitiativeCategory, InitiativeStatus
+from app.models.user import CollegeDomain, CurrentStatus, EducationStage, User
 
 DEMO_PROFILES = [
     {
@@ -17,6 +18,10 @@ DEMO_PROFILES = [
         "bio": "Grew up chasing mangoes in our backyard. Now I chase deadlines in Chennai. Proud son of Keelattur, always home for Pongal.",
         "phone": "+91 98400 11001",
         "photo_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "cricket,volleyball",
+        "activities": "coding,community service",
+        "points": 85,
     },
     {
         "full_name": "Kavitha Selvaraj",
@@ -28,6 +33,10 @@ DEMO_PROFILES = [
         "bio": "Serving our district for five years. Healthcare is not just a job — it is my way of giving back to the people who raised me.",
         "phone": "+91 94440 22002",
         "photo_url": "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "badminton",
+        "activities": "yoga,health awareness",
+        "points": 70,
     },
     {
         "full_name": "Dinesh Krishnamoorthy",
@@ -39,6 +48,10 @@ DEMO_PROFILES = [
         "bio": "Building bridges — literally. From our village panchayat roads to metro stations in Bangalore. Every structure I build carries a piece of home.",
         "phone": "+91 90000 33003",
         "photo_url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "football,kabaddi",
+        "activities": "trekking,photography",
+        "points": 60,
     },
     {
         "full_name": "Priya Annamalai",
@@ -50,6 +63,10 @@ DEMO_PROFILES = [
         "bio": "Teaching 8th and 9th standard students. I believe every child in our district deserves the same opportunities as city kids.",
         "phone": "+91 91500 44004",
         "photo_url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "throwball",
+        "activities": "teaching,cultural events,drawing",
+        "points": 55,
     },
     {
         "full_name": "Surya Palaniswami",
@@ -61,6 +78,13 @@ DEMO_PROFILES = [
         "bio": "First person from our village to get into IIT! Appa cried. Amma made 10 kg of sweet pongal for the neighbourhood.",
         "phone": "+91 87540 55005",
         "photo_url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.college,
+        "college_name": "IIT Madras",
+        "college_domain": CollegeDomain.engineering,
+        "graduation_year": 2025,
+        "sports": "chess,table tennis",
+        "activities": "robotics club,AI research",
+        "points": 95,
     },
     {
         "full_name": "Meena Sundaram",
@@ -72,6 +96,13 @@ DEMO_PROFILES = [
         "bio": "Future doctor from Siruvadi! Dream is to open a free clinic in our village someday.",
         "phone": "+91 86380 66006",
         "photo_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.college,
+        "college_name": "Madurai Medical College",
+        "college_domain": CollegeDomain.medicine,
+        "graduation_year": 2026,
+        "sports": "swimming,athletics",
+        "activities": "NSS,blood donation camp",
+        "points": 80,
     },
     {
         "full_name": "Karthik Balasubramanian",
@@ -83,6 +114,13 @@ DEMO_PROFILES = [
         "bio": "Finance nerd by day, cricket fanatic by evening. Planning to clear CA exams by 2026.",
         "phone": "+91 82200 77007",
         "photo_url": "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.college,
+        "college_name": "Loyola College, Chennai",
+        "college_domain": CollegeDomain.commerce,
+        "graduation_year": 2025,
+        "sports": "cricket,carrom",
+        "activities": "finance club,debate",
+        "points": 45,
     },
     {
         "full_name": "Ravi Sundaresan",
@@ -94,6 +132,10 @@ DEMO_PROFILES = [
         "bio": "Started with a small kadai, now supply organic rice and groundnut oil across 12 villages. Employing 6 people from our panchayat.",
         "phone": "+91 99400 88008",
         "photo_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "kabaddi",
+        "activities": "panchayat meetings,entrepreneurship",
+        "points": 40,
     },
     {
         "full_name": "Lakshmi Venkataraman",
@@ -105,6 +147,10 @@ DEMO_PROFILES = [
         "bio": "Started tailoring during COVID lockdown with just a machine and a dream. Now have 4 employees and sell hand-embroidered sarees on Instagram.",
         "phone": "+91 98760 99009",
         "photo_url": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "yoga",
+        "activities": "women self-help group,craft workshops",
+        "points": 50,
     },
     {
         "full_name": "Senthil Kumar Rajendran",
@@ -116,6 +162,10 @@ DEMO_PROFILES = [
         "bio": "Fixing vehicles is in my blood — my father had a bicycle repair shop. Customers come from 5 villages around. Honest work, honest price.",
         "phone": "+91 97890 10010",
         "photo_url": "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "volleyball,cricket",
+        "activities": "motor sports,mentoring youth",
+        "points": 30,
     },
     {
         "full_name": "Murugan Thangaraj",
@@ -127,6 +177,10 @@ DEMO_PROFILES = [
         "bio": "Fourth generation farmer. Switched fully to organic methods three years ago. Our paddy sells at premium in Chennai markets now.",
         "phone": "+91 96780 11011",
         "photo_url": "https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "jallikattu,kabaddi",
+        "activities": "farmers association,organic farming workshops",
+        "points": 35,
     },
     {
         "full_name": "Valli Palanichamy",
@@ -138,6 +192,12 @@ DEMO_PROFILES = [
         "bio": "Came back from university to modernise our family farm. Growing jasmine and marigold for temple supply using drip irrigation.",
         "phone": "+91 95670 12012",
         "photo_url": "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "college_name": "Tamil Nadu Agricultural University",
+        "college_domain": CollegeDomain.science,
+        "sports": "athletics,throwball",
+        "activities": "agri-tech adoption,women farmer group",
+        "points": 65,
     },
     {
         "full_name": "Arun Pandiyan",
@@ -149,6 +209,10 @@ DEMO_PROFILES = [
         "bio": "Capturing memories for families across Tamil Nadu. Shot over 200 weddings. YouTube channel documenting village life — 15k subscribers!",
         "phone": "+91 94560 13013",
         "photo_url": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "cycling,football",
+        "activities": "photography,video production,YouTube",
+        "points": 20,
     },
     {
         "full_name": "Deepa Natarajan",
@@ -160,6 +224,12 @@ DEMO_PROFILES = [
         "bio": "Trained under Guru Savithri Amma for 12 years. Now teaching 30 children in our village every weekend. Dance is our heritage.",
         "phone": "+91 93450 14014",
         "photo_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "college_name": "Queen Mary's College, Chennai",
+        "college_domain": CollegeDomain.arts,
+        "sports": "yoga,athletics",
+        "activities": "bharatanatyam,cultural events,teaching dance",
+        "points": 75,
     },
     {
         "full_name": "Prasanna Muthukrishnan",
@@ -171,6 +241,43 @@ DEMO_PROFILES = [
         "bio": "12 years in the Army. Came home to serve our village another way. Working on road repairs, street lights, and a new community library.",
         "phone": "+91 92340 15015",
         "photo_url": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face",
+        "education_stage": EducationStage.working,
+        "sports": "athletics,shooting,football",
+        "activities": "panchayat,community development,veteran welfare",
+        "points": 100,
+    },
+]
+
+DEMO_INITIATIVES = [
+    {
+        "title": "Village Library Project",
+        "description": "Setting up a community library with books for all ages. Collecting donations of books and funds to build reading shelves in the panchayat hall.",
+        "status": InitiativeStatus.ongoing,
+        "category": InitiativeCategory.education,
+    },
+    {
+        "title": "Annual Village Sports Meet",
+        "description": "Organising cricket, kabaddi, volleyball and athletics competitions for youth of all age groups. Prizes sponsored by village alumni.",
+        "status": InitiativeStatus.planned,
+        "category": InitiativeCategory.sports,
+    },
+    {
+        "title": "Street Light Repair Drive",
+        "description": "Coordinating with panchayat to identify and repair broken street lights across all three streets. Targeting completion before monsoon.",
+        "status": InitiativeStatus.ongoing,
+        "category": InitiativeCategory.infrastructure,
+    },
+    {
+        "title": "Tree Plantation on Village Boundaries",
+        "description": "Planting 500 native saplings along the village boundary roads. Volunteers to adopt and water trees for the first year.",
+        "status": InitiativeStatus.planned,
+        "category": InitiativeCategory.environment,
+    },
+    {
+        "title": "Free Health Camp",
+        "description": "Monthly health screening camp for blood pressure, diabetes, and eye check-ups. Partnering with Government Primary Health Centre.",
+        "status": InitiativeStatus.completed,
+        "category": InitiativeCategory.health,
     },
 ]
 
@@ -196,4 +303,13 @@ def seed_demo_profiles(db) -> int:
         added += 1
 
     db.commit()
+
+    # Seed initiatives if none exist
+    initiative_count = db.query(Initiative).count()
+    if initiative_count == 0:
+        for i_data in DEMO_INITIATIVES:
+            initiative = Initiative(**i_data)
+            db.add(initiative)
+        db.commit()
+
     return added

@@ -62,9 +62,9 @@ test.describe("Admin Panel", () => {
     await page.goto("/auth/signup");
     await page.getByPlaceholder("Your full name").fill("Pending Member");
     await page.getByPlaceholder("you@example.com").fill(newEmail);
-    await page.getByPlaceholder("Min 6 characters").fill("testpass123");
-    await page.getByPlaceholder("Repeat password").fill("testpass123");
-    await page.getByRole("button", { name: "Create Profile" }).click();
+    await page.getByPlaceholder("Min 6 chars").fill("testpass123");
+    await page.getByPlaceholder("Repeat").fill("testpass123");
+    await page.getByRole("button", { name: "Join Village Connect" }).click();
     // After signup, auto-login brings user to dashboard with pending banner
     await expect(page).toHaveURL("/dashboard");
     await expect(page.getByText(/pending admin approval/i)).toBeVisible();

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UserPublic } from "@/lib/api";
+import { SpaceAvatarDisplay } from "@/components/SpaceAvatar";
 
 const STATUS_LABELS: Record<string, string> = {
   job: "Working", studying: "Studying", business: "Business",
@@ -11,6 +12,12 @@ const STATUS_COLORS: Record<string, string> = {
   business: "bg-amber-500/10 text-amber-300 border border-amber-500/25",
   farming:  "bg-emerald-500/10 text-emerald-300 border border-emerald-500/25",
   other:    "bg-slate-500/10 text-slate-400 border border-slate-500/25",
+};
+const EDUCATION_STAGE_COLORS: Record<string, string> = {
+  school:  "bg-sky-500/10 text-sky-300 border border-sky-500/25",
+  college: "bg-violet-500/10 text-violet-300 border border-violet-500/25",
+  working: "bg-teal-500/10 text-teal-300 border border-teal-500/25",
+  other:   "bg-slate-500/10 text-slate-400 border border-slate-500/25",
 };
 const BANNER_GRADIENTS = [
   "from-cyan-900/80 via-blue-900/60 to-purple-900/80",
@@ -31,10 +38,25 @@ const AVATAR_GRADIENTS = [
 
 interface Props { user: UserPublic; index?: number; }
 
+function getEducationLabel(user: UserPublic): string | null {
+  if (!user.education_stage) return null;
+  if (user.education_stage === "school") {
+    return user.school_grade ? `Class ${user.school_grade}` : "School";
+  }
+  if (user.education_stage === "college") {
+    return user.college_domain ? user.college_domain.charAt(0).toUpperCase() + user.college_domain.slice(1) : "College";
+  }
+  if (user.education_stage === "working") {
+    return user.current_status_detail ?? "Working";
+  }
+  return null;
+}
+
 export default function ProfileCard({ user, index = 0 }: Props) {
   const initials = user.full_name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
   const banner = BANNER_GRADIENTS[index % BANNER_GRADIENTS.length];
   const avatar = AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length];
+  const educationLabel = getEducationLabel(user);
 
   return (
     <Link
@@ -48,7 +70,7 @@ export default function ProfileCard({ user, index = 0 }: Props) {
       </div>
 
       {/* Content */}
-      <div className="px-5 pb-5 -mt-10">
+      <div className="px-5 pb-5 -mt-10 relative z-10">
         <div className="mb-3">
           {user.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -59,6 +81,8 @@ export default function ProfileCard({ user, index = 0 }: Props) {
               className="w-16 h-16 rounded-2xl object-cover border-2 border-cyan-500/30 shadow-lg shadow-cyan-500/10"
               loading="lazy"
             />
+          ) : user.avatar_key ? (
+            <SpaceAvatarDisplay avatarKey={user.avatar_key} size={64} name={user.full_name} />
           ) : (
             <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${avatar} flex items-center justify-center border-2 border-white/10 shadow-lg`}>
               <span className="text-white font-bold text-xl">{initials}</span>
@@ -74,12 +98,24 @@ export default function ProfileCard({ user, index = 0 }: Props) {
           </p>
         )}
 
-        {user.current_status && (
-          <span className={`inline-block mt-2 text-xs font-medium px-2.5 py-0.5 rounded-full ${STATUS_COLORS[user.current_status]}`}>
-            {STATUS_LABELS[user.current_status]}
-            {user.current_status_detail ? ` · ${user.current_status_detail}` : ""}
-          </span>
-        )}
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {educationLabel && user.education_stage && (
+            <span className={`inline-block text-xs font-medium px-2.5 py-0.5 rounded-full ${EDUCATION_STAGE_COLORS[user.education_stage]}`}>
+              {educationLabel}
+            </span>
+          )}
+          {user.current_status && !user.education_stage && (
+            <span className={`inline-block text-xs font-medium px-2.5 py-0.5 rounded-full ${STATUS_COLORS[user.current_status]}`}>
+              {STATUS_LABELS[user.current_status]}
+              {user.current_status_detail ? ` · ${user.current_status_detail}` : ""}
+            </span>
+          )}
+          {user.points ? (
+            <span className="inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/25">
+              ⭐ {user.points}
+            </span>
+          ) : null}
+        </div>
 
         {user.bio && (
           <p className="text-xs text-slate-400 mt-3 line-clamp-2 leading-relaxed">{user.bio}</p>

@@ -6,6 +6,11 @@ const BASE_URL =
     : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000");
 
 export type CurrentStatus = "job" | "studying" | "business" | "farming" | "other";
+export type EducationStage = "school" | "college" | "working" | "other";
+export type CollegeDomain = "engineering" | "medicine" | "arts" | "science" | "commerce" | "law" | "other";
+export type AchievementCategory = "academic" | "sports" | "cultural" | "community" | "leadership";
+export type InitiativeStatus = "planned" | "ongoing" | "completed";
+export type InitiativeCategory = "education" | "sports" | "environment" | "infrastructure" | "arts" | "health" | "technology" | "other";
 
 export interface UserPublic {
   id: number;
@@ -17,6 +22,19 @@ export interface UserPublic {
   education?: string;
   bio?: string;
   created_at?: string;
+  // Education fields
+  education_stage?: EducationStage;
+  school_grade?: number;
+  college_name?: string;
+  college_domain?: CollegeDomain;
+  graduation_year?: number;
+  // Activities
+  sports?: string;
+  activities?: string;
+  // Gamification
+  points?: number;
+  avatar_key?: string;
+  achievements?: AchievementOut[];
 }
 
 export interface UserPrivate extends UserPublic {
@@ -37,10 +55,41 @@ export interface AuthResponse {
   user: UserAdminView;
 }
 
+export interface AchievementOut {
+  id: number;
+  title: string;
+  description?: string;
+  category: AchievementCategory;
+  icon?: string;
+  points_awarded: number;
+  awarded_at?: string;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  user: UserPublic;
+}
+
+export interface InitiativeOut {
+  id: number;
+  title: string;
+  description?: string;
+  status: InitiativeStatus;
+  category: InitiativeCategory;
+  lead_user?: UserPublic;
+  start_date?: string;
+  end_date?: string;
+  created_at?: string;
+  participants: UserPublic[];
+  participant_count: number;
+  is_participant: boolean;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const { headers: optHeaders, ...restOptions } = options ?? {};
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    ...options,
+    ...restOptions,
+    headers: { "Content-Type": "application/json", ...optHeaders },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
@@ -75,6 +124,12 @@ export const signup = (data: {
   education?: string;
   bio?: string;
   phone?: string;
+  education_stage?: EducationStage;
+  school_grade?: number;
+  college_name?: string;
+  college_domain?: CollegeDomain;
+  graduation_year?: number;
+  avatar_key?: string;
 }) => request<{ message: string }>("/auth/signup", { method: "POST", body: JSON.stringify(data) });
 
 export const login = (email: string, password: string) =>
@@ -83,7 +138,18 @@ export const login = (email: string, password: string) =>
 export const getMe = (token: string) =>
   request<UserAdminView>("/auth/me", { headers: authHeaders(token) });
 
-export const updateProfile = (token: string, data: Partial<UserPrivate>) =>
+export type UserUpdate = Partial<UserPrivate> & {
+  education_stage?: EducationStage;
+  school_grade?: number;
+  college_name?: string;
+  college_domain?: CollegeDomain;
+  graduation_year?: number;
+  sports?: string;
+  activities?: string;
+  avatar_key?: string;
+};
+
+export const updateProfile = (token: string, data: UserUpdate) =>
   request<UserAdminView>("/auth/me", {
     method: "PUT",
     headers: authHeaders(token),
@@ -122,3 +188,54 @@ export const deleteUser = (token: string, id: number) =>
 
 export const makeAdmin = (token: string, id: number) =>
   request<UserAdminView>(`/admin/make-admin/${id}`, { method: "POST", headers: authHeaders(token) });
+
+// --- Leaderboard ---
+export const getLeaderboard = (category?: string) => {
+  const qs = category ? `?category=${category}` : "";
+  return request<LeaderboardEntry[]>(`/leaderboard${qs}`);
+};
+
+// --- Initiatives ---
+export const getInitiatives = (params?: { status?: string; category?: string }) => {
+  const qs = new URLSearchParams(params as Record<string, string>).toString();
+  return request<InitiativeOut[]>(`/initiatives${qs ? `?${qs}` : ""}`);
+};
+
+export const getInitiative = (id: number) => request<InitiativeOut>(`/initiatives/${id}`);
+
+export const createInitiative = (token: string, data: {
+  title: string;
+  description?: string;
+  status: InitiativeStatus;
+  category: InitiativeCategory;
+  lead_user_id?: number;
+  start_date?: string;
+  end_date?: string;
+}) => request<InitiativeOut>("/initiatives", { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
+
+export const updateInitiative = (token: string, id: number, data: Partial<{
+  title: string;
+  description: string;
+  status: InitiativeStatus;
+  category: InitiativeCategory;
+  lead_user_id: number;
+  start_date: string;
+  end_date: string;
+}>) => request<InitiativeOut>(`/initiatives/${id}`, { method: "PUT", headers: authHeaders(token), body: JSON.stringify(data) });
+
+export const deleteInitiative = (token: string, id: number) =>
+  fetch(`${BASE_URL}/initiatives/${id}`, { method: "DELETE", headers: authHeaders(token) });
+
+export const joinInitiative = (token: string, id: number) =>
+  request<InitiativeOut>(`/initiatives/${id}/join`, { method: "POST", headers: authHeaders(token) });
+
+export const leaveInitiative = (token: string, id: number) =>
+  request<InitiativeOut>(`/initiatives/${id}/leave`, { method: "DELETE", headers: authHeaders(token) });
+
+export const awardAchievement = (token: string, userId: number, data: {
+  title: string;
+  description?: string;
+  category: AchievementCategory;
+  icon?: string;
+  points_awarded?: number;
+}) => request<AchievementOut>(`/admin/users/${userId}/award`, { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });

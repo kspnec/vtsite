@@ -2,7 +2,20 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr
 
-from app.models.user import CurrentStatus
+from app.models.user import CurrentStatus, EducationStage, CollegeDomain
+
+
+class AchievementOut(BaseModel):
+    id: int
+    title: str
+    description: str | None = None
+    category: str
+    icon: str | None = None
+    points_awarded: int = 0
+    awarded_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
 
 
 class UserCreate(BaseModel):
@@ -16,6 +29,12 @@ class UserCreate(BaseModel):
     education: str | None = None
     bio: str | None = None
     phone: str | None = None
+    education_stage: EducationStage | None = None
+    school_grade: int | None = None
+    college_name: str | None = None
+    college_domain: CollegeDomain | None = None
+    graduation_year: int | None = None
+    avatar_key: str | None = None
 
 
 class UserLogin(BaseModel):
@@ -32,6 +51,14 @@ class UserUpdate(BaseModel):
     education: str | None = None
     bio: str | None = None
     phone: str | None = None
+    education_stage: EducationStage | None = None
+    school_grade: int | None = None
+    college_name: str | None = None
+    college_domain: CollegeDomain | None = None
+    graduation_year: int | None = None
+    avatar_key: str | None = None
+    sports: str | None = None
+    activities: str | None = None
 
 
 # Public profile — visible to everyone (no phone)
@@ -45,6 +72,16 @@ class UserPublic(BaseModel):
     education: str | None = None
     bio: str | None = None
     created_at: datetime | None = None
+    education_stage: EducationStage | None = None
+    school_grade: int | None = None
+    college_name: str | None = None
+    college_domain: CollegeDomain | None = None
+    graduation_year: int | None = None
+    sports: str | None = None
+    activities: str | None = None
+    points: int = 0
+    avatar_key: str | None = None
+    achievements: list[AchievementOut] = []
 
     class Config:
         from_attributes = True
@@ -71,3 +108,8 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserAdminView
+
+
+class LeaderboardEntry(BaseModel):
+    rank: int
+    user: UserPublic

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_admin_user
+from app.core.deps import get_admin_user, get_current_user
 from app.database import get_db
+from app.models.achievement import Achievement, AchievementCategory
 from app.models.user import User
-from app.schemas.user import UserAdminView
+from app.schemas.user import AchievementOut, UserAdminView
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -93,3 +94,52 @@ def make_admin(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.post("/users/{user_id}/award", response_model=AchievementOut)
+def award_achievement(
+    user_id: int,
+    title: str = Body(...),
+    description: str | None = Body(None),
+    category: AchievementCategory = Body(...),
+    icon: str | None = Body(None),
+    points_awarded: int = Body(0),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    achievement = Achievement(
+        user_id=user_id,
+        title=title,
+        description=description,
+        category=category,
+        icon=icon,
+        points_awarded=points_awarded,
+        awarded_by_id=current_user.id,
+    )
+    db.add(achievement)
+    user.points = (user.points or 0) + points_awarded
+    db.commit()
+    db.refresh(achievement)
+    return achievement
+
+
+@router.put("/users/{user_id}/points")
+def update_points(
+    user_id: int,
+    points: int = Body(..., embed=True),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.points = points
+    db.commit()
+    return {"points": user.points}

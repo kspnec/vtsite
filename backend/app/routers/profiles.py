@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.deps import get_approved_user
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import UserPrivate, UserPublic
+from app.schemas.user import AchievementOut, UserPrivate, UserPublic
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
@@ -16,7 +16,11 @@ def list_profiles(
     db: Session = Depends(get_db),
 ):
     """Public endpoint — returns all approved profiles."""
-    query = db.query(User).filter(User.is_approved == True, User.is_active == True)
+    query = (
+        db.query(User)
+        .options(joinedload(User.achievements))
+        .filter(User.is_approved == True, User.is_active == True)  # noqa: E712
+    )
     if village_area:
         query = query.filter(User.village_area.ilike(f"%{village_area}%"))
     if current_status:
@@ -29,7 +33,8 @@ def get_profile(user_id: int, db: Session = Depends(get_db)):
     """Public endpoint — returns one approved profile."""
     user = (
         db.query(User)
-        .filter(User.id == user_id, User.is_approved == True, User.is_active == True)
+        .options(joinedload(User.achievements))
+        .filter(User.id == user_id, User.is_approved == True, User.is_active == True)  # noqa: E712
         .first()
     )
     if not user:
@@ -46,9 +51,23 @@ def get_full_profile(
     """Approved members can see phone and date of birth."""
     user = (
         db.query(User)
-        .filter(User.id == user_id, User.is_approved == True, User.is_active == True)
+        .options(joinedload(User.achievements))
+        .filter(User.id == user_id, User.is_approved == True, User.is_active == True)  # noqa: E712
         .first()
     )
     if not user:
         raise HTTPException(status_code=404, detail="Profile not found")
     return user
+
+
+@router.get("/{profile_id}/achievements", response_model=list[AchievementOut])
+def get_achievements(profile_id: int, db: Session = Depends(get_db)):
+    user = (
+        db.query(User)
+        .options(joinedload(User.achievements))
+        .filter(User.id == profile_id, User.is_approved == True)  # noqa: E712
+        .first()
+    )
+    if not user:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return user.achievements

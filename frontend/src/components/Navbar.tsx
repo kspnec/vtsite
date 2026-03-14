@@ -22,6 +22,18 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/leaderboard"
+            className="text-sm font-medium text-slate-300 hover:text-amber-300 px-3 py-1.5 rounded-lg hover:bg-amber-500/10 transition-colors border border-transparent hover:border-amber-500/20 hidden sm:inline-flex"
+          >
+            🏆 Leaderboard
+          </Link>
+          <Link
+            href="/initiatives"
+            className="text-sm font-medium text-slate-300 hover:text-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition-colors border border-transparent hover:border-emerald-500/20 hidden sm:inline-flex"
+          >
+            🌱 Initiatives
+          </Link>
           {user ? (
             <>
               {!user.is_approved && (
