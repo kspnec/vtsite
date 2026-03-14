@@ -10,7 +10,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    router.push("/");
+    window.location.href = "/";
   };
 
   return (

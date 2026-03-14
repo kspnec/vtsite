@@ -62,7 +62,7 @@ test.describe("Login", () => {
     await page.getByPlaceholder("••••••••").fill("villageconnect123");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL("/dashboard");
-    await expect(page.getByText("My Profile")).toBeVisible();
+    await expect(page.getByRole("link", { name: "My Profile" })).toBeVisible();
   });
 
   test("logged-in user sees their name in navbar", async ({ page }) => {
@@ -70,7 +70,9 @@ test.describe("Login", () => {
     await page.getByPlaceholder("you@example.com").fill("arjun.murugesan@example.com");
     await page.getByPlaceholder("••••••••").fill("villageconnect123");
     await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL("/dashboard");
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
     await expect(page.getByRole("link", { name: "My Profile" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
   });
@@ -90,6 +92,7 @@ test.describe("Logout", () => {
     await page.getByPlaceholder("••••••••").fill("villageconnect123");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL("/dashboard");
+    await page.waitForLoadState("networkidle");
 
     // Logout
     await page.getByRole("button", { name: "Logout" }).click();

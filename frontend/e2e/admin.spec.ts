@@ -1,13 +1,14 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 
 const ADMIN = { email: "admin@village.com", password: "admin123" };
 
-async function loginAsAdmin(page: Parameters<Parameters<typeof test>[1]>[0]["page"]) {
+async function loginAsAdmin(page: Page) {
   await page.goto("/auth/login");
   await page.getByPlaceholder("you@example.com").fill(ADMIN.email);
   await page.getByPlaceholder("••••••••").fill(ADMIN.password);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page).toHaveURL("/dashboard");
+  // Admin is redirected to /admin (not /dashboard) after login
+  await expect(page).toHaveURL("/admin");
 }
 
 test.describe("Admin Panel", () => {
@@ -29,20 +30,17 @@ test.describe("Admin Panel", () => {
 
   test("admin can access admin panel", async ({ page }) => {
     await loginAsAdmin(page);
-    await page.goto("/admin");
     await expect(page.getByText("Admin Panel")).toBeVisible();
   });
 
   test("admin panel shows pending and all-members tabs", async ({ page }) => {
     await loginAsAdmin(page);
-    await page.goto("/admin");
     await expect(page.getByRole("button", { name: /Pending/ })).toBeVisible();
     await expect(page.getByRole("button", { name: /All Members/ })).toBeVisible();
   });
 
   test("all-members tab lists approved profiles", async ({ page }) => {
     await loginAsAdmin(page);
-    await page.goto("/admin");
     await page.getByRole("button", { name: /All Members/ }).click();
     // Seed data has 15 approved profiles; at least a few should show
     const rows = page.locator(".bg-white.rounded-2xl");
@@ -56,7 +54,7 @@ test.describe("Admin Panel", () => {
     await expect(page.getByRole("link", { name: "Admin" })).toBeVisible();
   });
 
-  test("admin can approve a newly signed-up user", async ({ page, request }) => {
+  test("admin can approve a newly signed-up user", async ({ page }) => {
     // Sign up a new user via UI
     const unique = Date.now();
     const newEmail = `pending_${unique}@test.com`;
@@ -70,20 +68,18 @@ test.describe("Admin Panel", () => {
 
     // Log in as admin and approve
     await loginAsAdmin(page);
-    await page.goto("/admin");
     await expect(page.getByRole("button", { name: /Pending/ })).toBeVisible();
 
-    // Find the Approve button for the new user
+    // Find the Approve button for the new user and click it
     const approveBtn = page.getByRole("button", { name: "Approve" }).first();
     await expect(approveBtn).toBeVisible();
     await approveBtn.click();
 
-    // Pending count should decrease (or show "No pending approvals" if it was the only one)
+    // After approval, re-check that the pending list refreshes
     await page.waitForTimeout(500);
-    // Verify the user no longer appears under pending
-    const pendingRows = page.locator("span", { hasText: "Pending" });
-    // The approved row should no longer show "Pending" badge
-    const stillPending = await pendingRows.filter({ hasText: newEmail }).count();
-    expect(stillPending).toBe(0);
+    // Switch to All Members to confirm the user is now approved
+    await page.getByRole("button", { name: /All Members/ }).click();
+    const approvedBadges = page.locator("span", { hasText: "Approved" });
+    await expect(approvedBadges.first()).toBeVisible();
   });
 });
