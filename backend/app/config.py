@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     FIRST_ADMIN_PASSWORD: str = ""
     SEED_DEMO_DATA: bool = False
 
+    # Used to build absolute URLs for locally-stored uploads
+    BACKEND_BASE_URL: str = "http://localhost:8000"
+
     class Config:
         env_file = ".env"
 

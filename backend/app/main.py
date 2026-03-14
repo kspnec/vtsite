@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -27,6 +30,11 @@ app.include_router(auth.router)
 app.include_router(profiles.router)
 app.include_router(admin.router)
 app.include_router(upload.router)
+
+# Serve locally-uploaded profile photos
+_uploads_dir = Path("/app/uploads")
+_uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(_uploads_dir)), name="static")
 
 
 @app.on_event("startup")

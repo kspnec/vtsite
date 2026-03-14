@@ -1,0 +1,62 @@
+{
+  "allowedTools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Edit",
+    "Write",
+    "TodoWrite",
+
+    "Bash(git status)",
+    "Bash(git diff*)",
+    "Bash(git log*)",
+    "Bash(git branch*)",
+    "Bash(git show*)",
+    "Bash(git stash list*)",
+
+    "Bash(git add *)",
+    "Bash(git commit*)",
+    "Bash(git checkout -b *)",
+    "Bash(git switch -c *)",
+    "Bash(git switch develop)",
+    "Bash(git merge --no-ff *)",
+
+    "Bash(gh issue list*)",
+    "Bash(gh issue view*)",
+    "Bash(gh pr list*)",
+    "Bash(gh pr view*)",
+    "Bash(gh pr checks*)",
+    "Bash(gh run list*)",
+    "Bash(gh run view*)",
+
+    "Bash(cd backend*)",
+    "Bash(source venv/bin/activate*)",
+    "Bash(pip install -r requirements*.txt)",
+
+    "Bash(ruff check*)",
+    "Bash(ruff format --check*)",
+    "Bash(ruff format *)",
+    "Bash(pytest tests/*)",
+    "Bash(pytest *)",
+    "Bash(python -m pytest*)",
+
+    "Bash(cd frontend*)",
+    "Bash(npm ci*)",
+    "Bash(npm install*)",
+    "Bash(npm run lint*)",
+    "Bash(npm run build*)",
+    "Bash(npm run dev*)",
+    "Bash(npx tsc --noEmit*)",
+    "Bash(npx playwright test*)",
+    "Bash(npx playwright install*)",
+
+    "Bash(curl -s http://localhost*)",
+    "Bash(curl -sf http://localhost*)",
+    "Bash(curl http://localhost*)",
+
+    "Bash(/opt/podman/bin/podman ps*)",
+    "Bash(/opt/podman/bin/podman logs*)",
+    "Bash(/opt/podman/bin/podman images*)",
+    "Bash(/opt/podman/bin/podman inspect*)"
+  ]
+}

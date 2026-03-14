@@ -15,13 +15,17 @@ test.describe("Signup", () => {
     await expect(page.getByPlaceholder("you@example.com")).toBeVisible();
   });
 
-  test("successful signup shows pending confirmation", async ({ page }) => {
+  test("successful signup auto-logs in and shows pending dashboard", async ({ page }) => {
     await page.goto("/auth/signup");
     await page.getByPlaceholder("Your full name").fill(TEST_USER.full_name);
     await page.getByPlaceholder("you@example.com").fill(TEST_USER.email);
-    await page.getByPlaceholder("Min 6 characters").fill(TEST_USER.password);
+    // Fill both password fields
+    const passwordInputs = page.getByPlaceholder("Min 6 characters");
+    await passwordInputs.fill(TEST_USER.password);
+    await page.getByPlaceholder("Repeat password").fill(TEST_USER.password);
     await page.getByRole("button", { name: "Create Profile" }).click();
-    await expect(page.getByText("You're registered!")).toBeVisible();
+    // Should auto-login and land on dashboard showing pending banner
+    await expect(page).toHaveURL("/dashboard");
     await expect(page.getByText(/pending admin approval/i)).toBeVisible();
   });
 
@@ -30,6 +34,7 @@ test.describe("Signup", () => {
     await page.getByPlaceholder("Your full name").fill("Duplicate User");
     await page.getByPlaceholder("you@example.com").fill("arjun.murugesan@example.com");
     await page.getByPlaceholder("Min 6 characters").fill("pass123");
+    await page.getByPlaceholder("Repeat password").fill("pass123");
     await page.getByRole("button", { name: "Create Profile" }).click();
     await expect(page.getByText(/already registered/i)).toBeVisible();
   });

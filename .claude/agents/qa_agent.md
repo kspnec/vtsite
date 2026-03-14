@@ -84,6 +84,25 @@ def test_something(client):
 
 The `conftest.py` uses SQLite in-memory for tests — no PostgreSQL needed. The `autouse` `setup_db` fixture creates and drops tables around each test.
 
+## Bug Severity Taxonomy
+
+Classify every bug you find before filing it:
+
+| Severity | Definition | Examples |
+|----------|-----------|---------|
+| **Critical** | App crashes, data loss, auth bypass, PII exposed publicly | Phone number in `/profiles` response, admin endpoint accessible without auth, 500 on login |
+| **High** | Feature completely broken, wrong data shown, form won't submit | Profile update silently fails, approved user still blocked, filter returns wrong profiles |
+| **Medium** | Feature works but behaves unexpectedly, UI broken in edge cases | Long bio breaks card layout, filter chip stays "active" after reset, error message missing |
+| **Low** | Visual polish, minor copy, non-blocking friction | Wrong placeholder text, hover state missing, mobile padding off |
+
+**File bugs immediately — never batch.** One issue per bug:
+```bash
+gh issue create \
+  --title "[Severity] Short description" \
+  --body "**Steps to reproduce:**\n1. ...\n\n**Expected:** ...\n**Actual:** ...\n**Severity:** Critical|High|Medium|Low" \
+  --label "bug"
+```
+
 ## What to Check After Every Feature
 1. Existing tests still pass (`pytest tests/ -v`)
 2. Lint is clean (`ruff check .` and `npm run lint`)
@@ -91,6 +110,21 @@ The `conftest.py` uses SQLite in-memory for tests — no PostgreSQL needed. The 
 4. Health endpoint responds (`curl http://localhost:8000/health`)
 5. New endpoint is visible in Swagger (`http://localhost:8000/docs`)
 6. No container crashes (`/opt/podman/bin/podman ps`)
+
+## Testing Against Production / Staging
+
+If a production or staging URL is provided, test there — not just localhost:
+
+```bash
+# Override the base URL for Playwright
+BASE_URL=https://staging.yourdomain.com npx playwright test
+
+# Quick smoke test against a live URL
+curl -sf https://staging.yourdomain.com/api/health
+curl -sf https://staging.yourdomain.com/api/profiles | python3 -m json.tool | head -30
+```
+
+Test production with the mindset of a first-time visitor: no pre-existing session, no known data.
 
 ## Red Flags to Catch
 - Admin endpoints accessible without `is_admin=True`

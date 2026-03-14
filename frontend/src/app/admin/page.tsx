@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { approveUser, deleteUser, getPending, getAllUsers, makeAdmin, rejectUser, UserAdminView } from "@/lib/api";
 
@@ -130,7 +129,8 @@ function UserRow({
     <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center gap-4 flex-wrap">
       {/* Avatar */}
       {user.photo_url ? (
-        <Image src={user.photo_url} alt={user.full_name} width={48} height={48} className="w-12 h-12 rounded-xl object-cover" />
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={user.photo_url} alt={user.full_name} width={48} height={48} className="w-12 h-12 rounded-xl object-cover" />
       ) : (
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold">{initials}</span>

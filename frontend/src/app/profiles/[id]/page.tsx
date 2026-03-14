@@ -1,5 +1,4 @@
 import { getProfile } from "@/lib/api";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -48,7 +47,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           {/* Avatar */}
           <div className="mb-4">
             {profile.photo_url ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={profile.photo_url}
                 alt={profile.full_name}
                 width={96}

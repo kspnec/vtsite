@@ -65,6 +65,34 @@ cd backend && source venv/bin/activate && ruff check . && ruff format --check .
 cd frontend && npm run lint && npx tsc --noEmit
 ```
 
+## 7-Step Workflow
+
+Follow this cycle for every task — feature, bug fix, or refactor:
+
+1. **Pick** — Understand the issue/task. If there's a GitHub issue, read it: `gh issue view <n> --json title,body,comments`
+2. **Understand** — Read the relevant files before touching anything. Never write code blind.
+3. **Implement** — Make the change. Follow existing patterns (see Project Structure above).
+4. **Self-review** — Re-read your own diff: `git diff`. Check security checklist mentally.
+5. **Test** — Run backend tests (`pytest tests/ -v`) and frontend lint (`npm run lint && npx tsc --noEmit`).
+6. **Verify** — Confirm the behavior is correct end-to-end (run the app, check the affected flow).
+7. **Finish** — Commit on a feature branch, push, open a PR targeting `develop`.
+
+One task at a time — finish before starting the next.
+
+## GitHub Issue Integration
+
+When working from a GitHub issue:
+```bash
+# List open issues
+gh issue list --json number,title,labels
+
+# View an issue with full context
+gh issue view <n> --json title,body,comments
+
+# Close issue when done (reference in commit message)
+# Commit message: "fix: resolve profile phone leak (closes #<n>)"
+```
+
 ## When implementing
 1. Read the existing related files before writing new code
 2. Follow existing patterns — schemas in `schemas/user.py`, deps in `core/deps.py`

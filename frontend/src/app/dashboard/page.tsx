@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile, uploadPhoto, UserAdminView, CurrentStatus } from "@/lib/api";
 
@@ -91,15 +90,21 @@ export default function DashboardPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 animate-fade-in">
       <h1 className="text-2xl font-bold text-gray-900 mb-1">My Profile</h1>
-      <p className="text-gray-500 mb-8 text-sm">
-        {isApproved ? "Your profile is live and visible to everyone." : "⏳ Pending admin approval — your profile is not yet public."}
+      <p className="text-gray-500 mb-4 text-sm">
+        {isApproved ? "Your profile is live and visible to everyone." : "⏳ Pending admin approval — your profile will go public once approved."}
       </p>
+      {!isApproved && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-8 text-sm text-amber-800">
+          While you wait, complete your profile and add a photo — it will be ready the moment you&apos;re approved!
+        </div>
+      )}
 
       {/* Photo */}
       <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-6 flex items-center gap-5">
         <div className="relative">
           {user.photo_url ? (
-            <Image src={user.photo_url} alt={user.full_name} width={72} height={72} className="w-18 h-18 rounded-2xl object-cover" />
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={user.photo_url} alt={user.full_name} width={72} height={72} className="w-16 h-16 rounded-2xl object-cover" />
           ) : (
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
               <span className="text-white font-bold text-xl">{initials}</span>

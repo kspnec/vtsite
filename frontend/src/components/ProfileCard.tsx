@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { UserPublic } from "@/lib/api";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -54,12 +53,14 @@ export default function ProfileCard({ user, index = 0 }: Props) {
       <div className="px-5 pb-5 -mt-10">
         <div className="mb-3">
           {user.photo_url ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={user.photo_url}
               alt={user.full_name}
               width={72}
               height={72}
               className="w-18 h-18 rounded-2xl object-cover border-4 border-white shadow-md"
+              loading="lazy"
             />
           ) : (
             <div

@@ -27,6 +27,7 @@ services:
       FIRST_ADMIN_EMAIL: admin@village.com
       FIRST_ADMIN_PASSWORD: admin123
       SEED_DEMO_DATA: "true"
+      BACKEND_BASE_URL: "http://localhost:8000"
       CLOUDINARY_CLOUD_NAME: ""
       CLOUDINARY_API_KEY: ""
       CLOUDINARY_API_SECRET: ""
