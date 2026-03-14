@@ -16,7 +16,9 @@ def upload_photo(file_bytes: bytes, user_id: int) -> str:
         folder="vtsite/profiles",
         public_id=f"user_{user_id}",
         overwrite=True,
-        transformation=[{"width": 400, "height": 400, "crop": "fill", "gravity": "face"}],
+        transformation=[
+            {"width": 400, "height": 400, "crop": "fill", "gravity": "face"}
+        ],
     )
     return result["secure_url"]
 

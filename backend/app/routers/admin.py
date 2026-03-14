@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
@@ -11,17 +9,22 @@ from app.schemas.user import UserAdminView
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-@router.get("/pending", response_model=List[UserAdminView])
+@router.get("/pending", response_model=list[UserAdminView])
 def list_pending(
     db: Session = Depends(get_db),
     _: User = Depends(get_admin_user),
 ):
-    return db.query(User).filter(User.is_approved == False, User.is_active == True).order_by(User.created_at).all()
+    return (
+        db.query(User)
+        .filter(User.is_approved == False, User.is_active == True)
+        .order_by(User.created_at)
+        .all()
+    )
 
 
-@router.get("/users", response_model=List[UserAdminView])
+@router.get("/users", response_model=list[UserAdminView])
 def list_all_users(
-    approved: Optional[bool] = Query(None),
+    approved: bool | None = Query(None),
     db: Session = Depends(get_db),
     _: User = Depends(get_admin_user),
 ):

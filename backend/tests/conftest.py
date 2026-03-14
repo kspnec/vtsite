@@ -7,8 +7,9 @@ from sqlalchemy.orm import sessionmaker
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-for-ci")
-os.environ.setdefault("FIRST_ADMIN_EMAIL", "admin@test.com")
-os.environ.setdefault("FIRST_ADMIN_PASSWORD", "testpass123")
+# Leave admin seeding disabled in tests so profile list starts empty
+os.environ.setdefault("FIRST_ADMIN_EMAIL", "")
+os.environ.setdefault("FIRST_ADMIN_PASSWORD", "")
 
 from app.database import Base, get_db  # noqa: E402
 from app.main import app  # noqa: E402

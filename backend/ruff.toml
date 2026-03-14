@@ -1,6 +1,6 @@
 [lint]
 select = ["E", "F", "I", "UP"]
-ignore = ["E501"]
+ignore = ["E501", "E712"]  # E712: SQLAlchemy requires == True/False in filter()
 
 [lint.isort]
 known-first-party = ["app"]

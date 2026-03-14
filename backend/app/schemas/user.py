@@ -1,5 +1,4 @@
 from datetime import date, datetime
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -10,13 +9,13 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: str
-    village_area: Optional[str] = None
-    date_of_birth: Optional[date] = None
-    current_status: Optional[CurrentStatus] = None
-    current_status_detail: Optional[str] = None
-    education: Optional[str] = None
-    bio: Optional[str] = None
-    phone: Optional[str] = None
+    village_area: str | None = None
+    date_of_birth: date | None = None
+    current_status: CurrentStatus | None = None
+    current_status_detail: str | None = None
+    education: str | None = None
+    bio: str | None = None
+    phone: str | None = None
 
 
 class UserLogin(BaseModel):
@@ -25,27 +24,27 @@ class UserLogin(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    full_name: Optional[str] = None
-    village_area: Optional[str] = None
-    date_of_birth: Optional[date] = None
-    current_status: Optional[CurrentStatus] = None
-    current_status_detail: Optional[str] = None
-    education: Optional[str] = None
-    bio: Optional[str] = None
-    phone: Optional[str] = None
+    full_name: str | None = None
+    village_area: str | None = None
+    date_of_birth: date | None = None
+    current_status: CurrentStatus | None = None
+    current_status_detail: str | None = None
+    education: str | None = None
+    bio: str | None = None
+    phone: str | None = None
 
 
 # Public profile — visible to everyone (no phone)
 class UserPublic(BaseModel):
     id: int
     full_name: str
-    photo_url: Optional[str] = None
-    village_area: Optional[str] = None
-    current_status: Optional[CurrentStatus] = None
-    current_status_detail: Optional[str] = None
-    education: Optional[str] = None
-    bio: Optional[str] = None
-    created_at: Optional[datetime] = None
+    photo_url: str | None = None
+    village_area: str | None = None
+    current_status: CurrentStatus | None = None
+    current_status_detail: str | None = None
+    education: str | None = None
+    bio: str | None = None
+    created_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -53,8 +52,8 @@ class UserPublic(BaseModel):
 
 # Private profile — visible to approved members (includes phone)
 class UserPrivate(UserPublic):
-    phone: Optional[str] = None
-    date_of_birth: Optional[date] = None
+    phone: str | None = None
+    date_of_birth: date | None = None
 
 
 # Full profile for the owner / admin

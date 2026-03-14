@@ -1,5 +1,4 @@
 import enum
-from datetime import datetime
 
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Integer, String, Text
 from sqlalchemy.sql import func
@@ -28,7 +27,9 @@ class User(Base):
     date_of_birth = Column(Date, nullable=True)
     village_area = Column(String, nullable=True)
     current_status = Column(Enum(CurrentStatus), nullable=True)
-    current_status_detail = Column(String, nullable=True)  # e.g. "Software Engineer at TCS"
+    current_status_detail = Column(
+        String, nullable=True
+    )  # e.g. "Software Engineer at TCS"
     education = Column(String, nullable=True)
     bio = Column(Text, nullable=True)
     phone = Column(String, nullable=True)  # shown only to approved members

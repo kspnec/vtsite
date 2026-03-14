@@ -32,12 +32,18 @@ def signup(payload: UserCreate, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-    return {"message": "Registration successful. Your profile is pending admin approval."}
+    return {
+        "message": "Registration successful. Your profile is pending admin approval."
+    }
 
 
 @router.post("/login", response_model=Token)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == payload.email, User.is_active == True).first()
+    user = (
+        db.query(User)
+        .filter(User.email == payload.email, User.is_active == True)
+        .first()
+    )
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     token = create_access_token(user.id)

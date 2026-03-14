@@ -10,7 +10,6 @@ import sys
 os.environ.setdefault("FIRST_ADMIN_EMAIL", "")
 os.environ.setdefault("FIRST_ADMIN_PASSWORD", "")
 
-from app.config import settings  # noqa: E402
 from app.core.security import hash_password  # noqa: E402
 from app.database import Base, SessionLocal, engine  # noqa: E402
 from app.models.user import CurrentStatus, User  # noqa: E402
