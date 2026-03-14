@@ -43,7 +43,7 @@ test.describe("Admin Panel", () => {
     await loginAsAdmin(page);
     await page.getByRole("button", { name: /All Members/ }).click();
     // Seed data has 15 approved profiles; at least a few should show
-    const rows = page.locator(".bg-white.rounded-2xl");
+    const rows = page.locator(".glass.rounded-2xl");
     await expect(rows.first()).toBeVisible();
     const count = await rows.count();
     expect(count).toBeGreaterThan(5);

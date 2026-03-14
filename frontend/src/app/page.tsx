@@ -23,15 +23,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       {/* Hero */}
-      <div className="text-center mb-12 animate-fade-in">
-        <div className="text-5xl mb-4">🌾</div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">
+      <div className="text-center mb-14 animate-fade-in">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-5xl mb-6 animate-float shadow-[0_0_40px_rgba(52,211,153,0.15)]">
+          🌾
+        </div>
+        <h1 className="text-5xl font-bold text-slate-100 mb-4 leading-tight">
           Our Village,{" "}
-          <span className="text-green-600">Our Pride</span>
+          <span className="gradient-text">Our Universe</span>
         </h1>
-        <p className="text-gray-500 text-lg max-w-xl mx-auto">
-          Discover the incredible young talents from our village — where they are and what they&apos;re
-          doing today.
+        <p className="text-slate-400 text-lg max-w-lg mx-auto leading-relaxed">
+          Every star has a story. Discover the brilliant young talents from our
+          village — where they shine and what they&apos;re building today.
         </p>
       </div>
 
@@ -40,19 +42,19 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       {/* Stats */}
       {!error && (
-        <p className="text-sm text-gray-400 mb-6 text-center">
+        <p className="text-sm text-slate-500 mb-6 text-center">
           {profiles.length} {profiles.length === 1 ? "member" : "members"} found
         </p>
       )}
 
       {/* Grid */}
       {error ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-slate-400">
           <div className="text-4xl mb-3">⚠️</div>
           <p>Could not load profiles. Make sure the backend is running.</p>
         </div>
       ) : profiles.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-slate-400">
           <div className="text-4xl mb-3">🔍</div>
           <p>No profiles found. Try a different filter.</p>
         </div>

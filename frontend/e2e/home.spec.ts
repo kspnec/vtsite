@@ -4,7 +4,7 @@ test.describe("Homepage", () => {
   test("loads and shows the hero section", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByText("Our Village,")).toBeVisible();
-    await expect(page.getByText("Our Pride")).toBeVisible();
+    await expect(page.getByText("Our Universe")).toBeVisible();
   });
 
   test("displays profile cards", async ({ page }) => {

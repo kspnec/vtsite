@@ -89,35 +89,35 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 animate-fade-in">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">My Profile</h1>
-      <p className="text-gray-500 mb-4 text-sm">
+      <h1 className="text-2xl font-bold text-slate-100 mb-1">My Profile</h1>
+      <p className="text-slate-400 mb-4 text-sm">
         {isApproved ? "Your profile is live and visible to everyone." : "⏳ Pending admin approval — your profile will go public once approved."}
       </p>
       {!isApproved && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-8 text-sm text-amber-800">
+        <div className="bg-amber-500/8 border border-amber-500/20 rounded-xl px-4 py-3 mb-8 text-sm text-amber-300">
           While you wait, complete your profile and add a photo — it will be ready the moment you&apos;re approved!
         </div>
       )}
 
       {/* Photo */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-6 flex items-center gap-5">
+      <div className="glass rounded-2xl p-6 mb-6 flex items-center gap-5">
         <div className="relative">
           {user.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={user.photo_url} alt={user.full_name} width={72} height={72} className="w-16 h-16 rounded-2xl object-cover" />
           ) : (
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
               <span className="text-white font-bold text-xl">{initials}</span>
             </div>
           )}
         </div>
         <div>
-          <p className="font-semibold text-gray-900">{user.full_name}</p>
-          <p className="text-sm text-gray-500 mb-2">{user.email}</p>
+          <p className="font-semibold text-slate-100">{user.full_name}</p>
+          <p className="text-sm text-slate-400 mb-2">{user.email}</p>
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="text-sm text-green-600 hover:text-green-800 font-medium disabled:opacity-50"
+            className="text-sm text-cyan-400 hover:text-cyan-300 font-medium disabled:opacity-50"
           >
             {uploading ? "Uploading…" : "Change photo"}
           </button>
@@ -126,55 +126,55 @@ export default function DashboardPage() {
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+      <div className="glass rounded-2xl p-8">
         <form onSubmit={handleSave} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">Full Name</label>
             <input required value={form.full_name} onChange={(e) => set("full_name", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+              className="space-input w-full px-4 py-2.5 rounded-xl" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Village / Area</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">Village / Area</label>
             <input value={form.village_area} onChange={(e) => set("village_area", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+              className="space-input w-full px-4 py-2.5 rounded-xl" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Currently</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">Currently</label>
             <select value={form.current_status} onChange={(e) => set("current_status", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all bg-white">
-              <option value="">Select…</option>
-              {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              className="space-input w-full px-4 py-2.5 rounded-xl bg-transparent">
+              <option value="" className="bg-[#030b1a]">Select…</option>
+              {STATUSES.map((s) => <option key={s.value} value={s.value} className="bg-[#030b1a]">{s.label}</option>)}
             </select>
           </div>
           {form.current_status && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Details</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">Details</label>
               <input value={form.current_status_detail} onChange={(e) => set("current_status_detail", e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+                className="space-input w-full px-4 py-2.5 rounded-xl"
                 placeholder="e.g. Software Engineer at TCS" />
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Education</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">Education</label>
             <input value={form.education} onChange={(e) => set("education", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+              className="space-input w-full px-4 py-2.5 rounded-xl" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">About me</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">About me</label>
             <textarea rows={3} value={form.bio} onChange={(e) => set("bio", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all resize-none" />
+              className="space-input w-full px-4 py-2.5 rounded-xl resize-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone <span className="text-gray-400 font-normal">(members only)</span></label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">Phone <span className="text-slate-500 font-normal">(members only)</span></label>
             <input type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+              className="space-input w-full px-4 py-2.5 rounded-xl" />
           </div>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-xl">{error}</p>}
-          {success && <p className="text-sm text-green-700 bg-green-50 px-4 py-2.5 rounded-xl">Profile saved successfully!</p>}
+          {error && <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-4 py-2.5 rounded-xl">{error}</p>}
+          {success && <p className="text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 rounded-xl">Profile saved successfully!</p>}
 
           <button type="submit" disabled={saving}
-            className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl transition-colors">
+            className="btn-primary w-full py-2.5 rounded-xl">
             {saving ? "Saving…" : "Save Changes"}
           </button>
         </form>

@@ -62,8 +62,8 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 animate-fade-in">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Admin Panel</h1>
-      <p className="text-gray-500 mb-8 text-sm">Manage member profiles and approvals</p>
+      <h1 className="text-2xl font-bold text-slate-100 mb-1">Admin Panel</h1>
+      <p className="text-slate-400 mb-8 text-sm">Manage member profiles and approvals</p>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
@@ -73,8 +73,8 @@ export default function AdminPage() {
             onClick={() => setTab(t)}
             className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors ${
               tab === t
-                ? "bg-green-600 text-white shadow-sm"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                ? "bg-gradient-to-r from-cyan-600/80 to-purple-600/80 text-white border border-cyan-500/30"
+                : "glass text-slate-400 border border-white/5 hover:border-cyan-500/20 hover:text-slate-200"
             }`}
           >
             {t === "pending" ? `Pending (${pending.length})` : `All Members (${all.length})`}
@@ -83,9 +83,9 @@ export default function AdminPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Loading…</div>
+        <div className="text-center py-20 text-slate-500">Loading…</div>
       ) : list.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-slate-500">
           <div className="text-4xl mb-3">{tab === "pending" ? "✅" : "👥"}</div>
           <p>{tab === "pending" ? "No pending approvals!" : "No members yet."}</p>
         </div>
@@ -126,13 +126,13 @@ function UserRow({
   const initials = user.full_name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center gap-4 flex-wrap">
+    <div className="glass rounded-2xl p-5 flex items-center gap-4 flex-wrap">
       {/* Avatar */}
       {user.photo_url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={user.photo_url} alt={user.full_name} width={48} height={48} className="w-12 h-12 rounded-xl object-cover" />
       ) : (
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold">{initials}</span>
         </div>
       )}
@@ -140,19 +140,19 @@ function UserRow({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-semibold text-gray-900">{user.full_name}</p>
+          <p className="font-semibold text-slate-100">{user.full_name}</p>
           {user.is_admin && (
-            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Admin</span>
+            <span className="text-xs bg-purple-500/10 text-purple-300 border border-purple-500/25 px-2 py-0.5 rounded-full font-medium">Admin</span>
           )}
           {!user.is_approved && (
-            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
+            <span className="text-xs bg-amber-500/10 text-amber-300 border border-amber-500/25 px-2 py-0.5 rounded-full font-medium">Pending</span>
           )}
           {user.is_approved && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Approved</span>
+            <span className="text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/25 px-2 py-0.5 rounded-full font-medium">Approved</span>
           )}
         </div>
-        <p className="text-sm text-gray-500 truncate">{user.email}</p>
-        {user.village_area && <p className="text-xs text-gray-400">📍 {user.village_area}</p>}
+        <p className="text-sm text-slate-400 truncate">{user.email}</p>
+        {user.village_area && <p className="text-xs text-slate-500">📍 {user.village_area}</p>}
       </div>
 
       {/* Actions */}
@@ -160,23 +160,23 @@ function UserRow({
         {showApproval && (
           <>
             <button onClick={onApprove}
-              className="text-sm font-medium bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 transition-colors">
+              className="text-sm font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25 px-4 py-1.5 rounded-lg hover:bg-emerald-500/20 transition-colors">
               Approve
             </button>
             <button onClick={onReject}
-              className="text-sm font-medium bg-red-50 text-red-600 px-4 py-1.5 rounded-lg hover:bg-red-100 transition-colors">
+              className="text-sm font-medium bg-red-500/10 text-red-400 border border-red-500/25 px-4 py-1.5 rounded-lg hover:bg-red-500/20 transition-colors">
               Reject
             </button>
           </>
         )}
         {!showApproval && !user.is_admin && (
           <button onClick={onMakeAdmin}
-            className="text-sm font-medium bg-purple-50 text-purple-700 px-4 py-1.5 rounded-lg hover:bg-purple-100 transition-colors">
+            className="text-sm font-medium bg-purple-500/10 text-purple-300 border border-purple-500/25 px-4 py-1.5 rounded-lg hover:bg-purple-500/20 transition-colors">
             Make Admin
           </button>
         )}
         <button onClick={onDelete}
-          className="text-sm font-medium text-gray-400 hover:text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+          className="text-sm text-slate-500 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors">
           Delete
         </button>
       </div>

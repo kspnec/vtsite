@@ -10,11 +10,11 @@ const STATUS_LABELS: Record<string, string> = {
   other: "Other",
 };
 const STATUS_COLORS: Record<string, string> = {
-  job: "bg-blue-100 text-blue-700",
-  studying: "bg-purple-100 text-purple-700",
-  business: "bg-amber-100 text-amber-700",
-  farming: "bg-green-100 text-green-700",
-  other: "bg-gray-100 text-gray-700",
+  job:      "bg-cyan-500/10 text-cyan-300 border border-cyan-500/25",
+  studying: "bg-purple-500/10 text-purple-300 border border-purple-500/25",
+  business: "bg-amber-500/10 text-amber-300 border border-amber-500/25",
+  farming:  "bg-emerald-500/10 text-emerald-300 border border-emerald-500/25",
+  other:    "bg-slate-500/10 text-slate-400 border border-slate-500/25",
 };
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,13 +35,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12 animate-fade-in">
-      <Link href="/" className="text-sm text-gray-500 hover:text-green-700 flex items-center gap-1 mb-8">
+      <Link href="/" className="text-sm text-slate-500 hover:text-cyan-400 flex items-center gap-1 mb-8 transition-colors">
         ← Back to all profiles
       </Link>
 
-      <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
+      <div className="glass rounded-3xl overflow-hidden">
         {/* Banner */}
-        <div className="h-32 bg-gradient-to-r from-green-400 to-emerald-600" />
+        <div className="h-36 bg-gradient-to-r from-cyan-900/80 via-purple-900/60 to-emerald-900/80 relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_0)] bg-[length:24px_24px]" />
+        </div>
 
         <div className="px-8 pb-8 -mt-12">
           {/* Avatar */}
@@ -53,19 +55,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                 alt={profile.full_name}
                 width={96}
                 height={96}
-                className="w-24 h-24 rounded-3xl object-cover border-4 border-white shadow-lg"
+                className="w-24 h-24 rounded-3xl object-cover border-2 border-cyan-500/30 shadow-lg shadow-cyan-500/10"
               />
             ) : (
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center border-4 border-white shadow-lg">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center border-2 border-white/10 shadow-lg">
                 <span className="text-white font-bold text-3xl">{initials}</span>
               </div>
             )}
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900">{profile.full_name}</h1>
+          <h1 className="text-2xl font-bold text-slate-100">{profile.full_name}</h1>
 
           {profile.village_area && (
-            <p className="text-gray-500 flex items-center gap-1 mt-1">
+            <p className="text-slate-400 flex items-center gap-1 mt-1">
               <span>📍</span> {profile.village_area}
             </p>
           )}
@@ -79,21 +81,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             </span>
           )}
 
-          <div className="mt-6 space-y-4 divide-y divide-gray-100">
+          <div className="mt-6 space-y-4 divide-y divide-white/5">
             {profile.education && (
               <div className="pt-4">
-                <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Education</p>
-                <p className="text-gray-700">{profile.education}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-widest font-medium mb-1">Education</p>
+                <p className="text-slate-300 leading-relaxed">{profile.education}</p>
               </div>
             )}
             {profile.bio && (
               <div className="pt-4">
-                <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">About</p>
-                <p className="text-gray-700 leading-relaxed">{profile.bio}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-widest font-medium mb-1">About</p>
+                <p className="text-slate-300 leading-relaxed">{profile.bio}</p>
               </div>
             )}
             <div className="pt-4">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-slate-500">
                 Member since {profile.created_at ? new Date(profile.created_at).toLocaleDateString("en-IN", { month: "long", year: "numeric" }) : "—"}
               </p>
             </div>
