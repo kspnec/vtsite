@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.core.security import hash_password
 from app.database import Base, SessionLocal, engine
+from app.fixtures import seed_demo_profiles
 from app.models.user import User
 from app.routers import admin, auth, profiles, upload
 
@@ -32,6 +33,19 @@ app.include_router(upload.router)
 def startup():
     Base.metadata.create_all(bind=engine)
     _seed_admin()
+    _seed_fixtures()
+
+
+def _seed_fixtures():
+    if not settings.SEED_DEMO_DATA:
+        return
+    db: Session = SessionLocal()
+    try:
+        added = seed_demo_profiles(db)
+        if added:
+            print(f"[startup] Seeded {added} demo profiles.")
+    finally:
+        db.close()
 
 
 def _seed_admin():

@@ -26,6 +26,7 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: 10080
       FIRST_ADMIN_EMAIL: admin@village.com
       FIRST_ADMIN_PASSWORD: admin123
+      SEED_DEMO_DATA: "true"
       CLOUDINARY_CLOUD_NAME: ""
       CLOUDINARY_API_KEY: ""
       CLOUDINARY_API_SECRET: ""

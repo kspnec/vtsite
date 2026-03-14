@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     FIRST_ADMIN_EMAIL: str = ""
     FIRST_ADMIN_PASSWORD: str = ""
+    SEED_DEMO_DATA: bool = False
 
     class Config:
         env_file = ".env"
