@@ -1,4 +1,9 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// Server-side (SSR/RSC): use API_URL to reach the backend container by name.
+// Client-side (browser): use NEXT_PUBLIC_API_URL (public, baked at build time).
+const BASE_URL =
+  typeof window === "undefined"
+    ? (process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
+    : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000");
 
 export type CurrentStatus = "job" | "studying" | "business" | "farming" | "other";
 

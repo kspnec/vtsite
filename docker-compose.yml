@@ -42,6 +42,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    environment:
+      API_URL: http://backend:8000   # used by SSR/server components inside the container
     depends_on:
       - backend
 
