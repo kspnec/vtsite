@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signup, login, CurrentStatus } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import GoogleButton from "@/components/GoogleButton";
 
 const STATUSES: { value: CurrentStatus; label: string }[] = [
   { value: "job", label: "Working / Job" },
@@ -68,6 +69,14 @@ export default function SignupPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          {/* Google OAuth — same pending-approval flow */}
+          <GoogleButton label="Sign up with Google" />
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-gray-100" />
+            <span className="text-xs text-gray-400 font-medium">or fill in the form</span>
+            <div className="flex-1 h-px bg-gray-100" />
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Required */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

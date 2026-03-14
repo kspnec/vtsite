@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import cloudinary
 import cloudinary.uploader
-from pathlib import Path
 
 from app.config import settings
 
