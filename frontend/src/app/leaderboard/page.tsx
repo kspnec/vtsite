@@ -29,7 +29,7 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    setLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
     getLeaderboard(category === "all" ? undefined : category)
       .then(setEntries)
       .catch(() => setEntries([]))

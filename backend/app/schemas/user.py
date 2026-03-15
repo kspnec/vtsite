@@ -3,7 +3,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr, field_validator
 
-from app.models.user import CurrentStatus, EducationStage, CollegeDomain
+from app.models.user import CollegeDomain, CurrentStatus, EducationStage
 
 
 class AchievementOut(BaseModel):

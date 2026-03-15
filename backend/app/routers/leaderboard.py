@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.user import User, EducationStage
-from app.schemas.user import UserPublic, LeaderboardEntry
+from app.models.user import EducationStage, User
+from app.schemas.user import LeaderboardEntry, UserPublic
 
 router = APIRouter(prefix="/leaderboard", tags=["leaderboard"])
 

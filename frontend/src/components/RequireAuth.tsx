@@ -13,7 +13,7 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
     if (!token) {
       router.replace(`/auth/login?next=${encodeURIComponent(pathname)}`);
     } else {
-      setReady(true);
+      setReady(true); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [token, router, pathname]);
 

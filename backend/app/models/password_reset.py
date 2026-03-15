@@ -2,6 +2,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+
 from app.database import Base
 
 

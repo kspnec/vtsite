@@ -1,7 +1,7 @@
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from app.core.deps import get_current_user
 from app.core.security import decode_access_token
@@ -10,7 +10,13 @@ from app.models.initiative import Initiative, initiative_participants  # noqa: F
 from app.models.initiative_update import InitiativeProgressUpdate
 from app.models.notification import NotificationType
 from app.models.user import User
-from app.schemas.initiative import InitiativeCreate, InitiativeOut, InitiativeUpdate, ProgressUpdateCreate, ProgressUpdateOut
+from app.schemas.initiative import (
+    InitiativeCreate,
+    InitiativeOut,
+    InitiativeUpdate,
+    ProgressUpdateCreate,
+    ProgressUpdateOut,
+)
 from app.schemas.user import UserPublic
 from app.services.notifications import notify
 
@@ -20,9 +26,9 @@ _bearer = HTTPBearer(auto_error=False)
 
 
 def _optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer),
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     db: Session = Depends(get_db),
-) -> Optional[User]:
+) -> User | None:
     if not credentials:
         return None
     try:
@@ -34,7 +40,7 @@ def _optional_user(
         return None
 
 
-def _initiative_to_out(initiative: Initiative, current_user: Optional[User] = None) -> InitiativeOut:
+def _initiative_to_out(initiative: Initiative, current_user: User | None = None) -> InitiativeOut:
     participant_ids = {p.id for p in initiative.participants}
     return InitiativeOut(
         id=initiative.id,
@@ -54,9 +60,9 @@ def _initiative_to_out(initiative: Initiative, current_user: Optional[User] = No
 
 @router.get("", response_model=list[InitiativeOut])
 def list_initiatives(
-    status: Optional[str] = Query(None),
-    category: Optional[str] = Query(None),
-    current_user: Optional[User] = Depends(_optional_user),
+    status: str | None = Query(None),
+    category: str | None = Query(None),
+    current_user: User | None = Depends(_optional_user),
     db: Session = Depends(get_db),
 ):
     q = db.query(Initiative)
@@ -71,7 +77,7 @@ def list_initiatives(
 @router.get("/{initiative_id}", response_model=InitiativeOut)
 def get_initiative(
     initiative_id: int,
-    current_user: Optional[User] = Depends(_optional_user),
+    current_user: User | None = Depends(_optional_user),
     db: Session = Depends(get_db),
 ):
     initiative = db.query(Initiative).filter(Initiative.id == initiative_id).first()
@@ -188,7 +194,7 @@ def leave_initiative(
 @router.get("/{initiative_id}/progress", response_model=list[ProgressUpdateOut])
 def list_progress_updates(
     initiative_id: int,
-    current_user: Optional[User] = Depends(_optional_user),
+    current_user: User | None = Depends(_optional_user),
     db: Session = Depends(get_db),
 ):
     if not db.query(Initiative).filter(Initiative.id == initiative_id).first():

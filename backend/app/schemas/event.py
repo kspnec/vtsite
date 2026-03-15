@@ -1,5 +1,7 @@
 from datetime import date, datetime
+
 from pydantic import BaseModel
+
 from app.models.event import EventType
 from app.schemas.user import UserPublic
 

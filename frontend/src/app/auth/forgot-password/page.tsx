@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <div className="text-4xl mb-3">🔐</div>
           <h1 className="text-2xl font-bold text-slate-100">Reset Password</h1>
-          <p className="text-slate-400 mt-1 text-sm">Enter your email and we'll send a reset link</p>
+          <p className="text-slate-400 mt-1 text-sm">Enter your email and we&apos;ll send a reset link</p>
         </div>
         <div className="glass rounded-2xl p-8">
           {sent ? (
@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
               <div className="text-5xl">📬</div>
               <p className="text-slate-100 font-semibold">Check your inbox</p>
               <p className="text-slate-400 text-sm">
-                If an account exists for <span className="text-cyan-400">{email}</span>, a reset link has been sent. Check spam if you don't see it.
+                If an account exists for <span className="text-cyan-400">{email}</span>, a reset link has been sent. Check spam if you don&apos;t see it.
               </p>
               <p className="text-slate-500 text-xs">The link expires in 1 hour.</p>
               <Link href="/auth/login" className="block btn-primary text-center py-2.5 rounded-xl mt-4">

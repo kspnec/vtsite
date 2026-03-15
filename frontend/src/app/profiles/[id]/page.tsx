@@ -1,7 +1,6 @@
 import { getProfile, AchievementOut } from "@/lib/api";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SpaceAvatarDisplay } from "@/components/SpaceAvatar";
 import AccoladeSection from "@/components/AccoladeSection";
 import ProfilePhoto from "@/components/ProfilePhoto";
 import RequireAuth from "@/components/RequireAuth";

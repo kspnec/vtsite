@@ -1,6 +1,8 @@
 from datetime import datetime
+
 from pydantic import BaseModel, field_validator
-from app.models.accolade import AccoladeCategory, ACCOLADE_EMOJI
+
+from app.models.accolade import AccoladeCategory
 from app.schemas.user import UserPublic
 
 

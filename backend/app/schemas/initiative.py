@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel
 
-from app.models.initiative import InitiativeStatus, InitiativeCategory
+from app.models.initiative import InitiativeCategory, InitiativeStatus
 from app.schemas.user import UserPublic
 
 

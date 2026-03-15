@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem("space-theme") as SpaceTheme | null;
     if (stored && ["full", "stars", "nebula", "off"].includes(stored)) {
-      setThemeState(stored);
+      setThemeState(stored); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, []);
 

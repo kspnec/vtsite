@@ -1,12 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func
 from sqlalchemy.orm import Session
+
 from app.core.deps import get_current_user
 from app.database import get_db
-from app.models.accolade import Accolade, AccoladeCategory, ACCOLADE_EMOJI
+from app.models.accolade import ACCOLADE_EMOJI, Accolade, AccoladeCategory
 from app.models.notification import NotificationType
 from app.models.user import User
-from app.schemas.accolade import AccoladeCreate, AccoladeOut, AccoladeStats, AccoladeSummary
+from app.schemas.accolade import (
+    AccoladeCreate,
+    AccoladeOut,
+    AccoladeStats,
+    AccoladeSummary,
+)
 from app.schemas.user import UserPublic
 from app.services.notifications import notify
 

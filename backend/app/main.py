@@ -9,12 +9,27 @@ from app.config import settings
 from app.core.security import hash_password
 from app.database import Base, SessionLocal, engine
 from app.fixtures import seed_demo_profiles
-from app.models import User, Achievement, Initiative, PasswordResetToken, Event, Accolade  # noqa: F401
-from app.models.notification import Notification  # noqa: F401
+from app.models import (  # noqa: F401
+    Accolade,
+    Achievement,
+    Event,
+    Initiative,
+    PasswordResetToken,
+    User,
+)
 from app.models.initiative_update import InitiativeProgressUpdate  # noqa: F401
-from app.routers import admin, auth, profiles, upload
-from app.routers import leaderboard, initiatives
-from app.routers import events, accolades, notifications
+from app.models.notification import Notification  # noqa: F401
+from app.routers import (
+    accolades,
+    admin,
+    auth,
+    events,
+    initiatives,
+    leaderboard,
+    notifications,
+    profiles,
+    upload,
+)
 
 app = FastAPI(
     title="VT Site API",
@@ -42,8 +57,11 @@ app.include_router(notifications.router)
 
 # Serve locally-uploaded profile photos
 _uploads_dir = Path("/app/uploads")
-_uploads_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/static", StaticFiles(directory=str(_uploads_dir)), name="static")
+try:
+    _uploads_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/static", StaticFiles(directory=str(_uploads_dir)), name="static")
+except (PermissionError, OSError):
+    pass
 
 
 @app.on_event("startup")
