@@ -15,8 +15,8 @@ test.describe("Navbar — profile dropdown", () => {
   test("shows user first name in navbar when logged in", async ({ page }) => {
     await loginAs(page, MEMBER);
     await page.goto("/");
-    // "Arjun" should be visible in the nav (first name from "Arjun Murugesan")
-    await expect(page.getByText("Arjun")).toBeVisible();
+    // Profile menu button contains the first name "Arjun"
+    await expect(page.getByRole("button", { name: "Profile menu" })).toContainText("Arjun");
   });
 
   test("profile dropdown opens on click and shows full name + email", async ({ page }) => {
@@ -24,8 +24,10 @@ test.describe("Navbar — profile dropdown", () => {
     await page.goto("/");
     // Click the profile button (aria-label="Profile menu")
     await page.getByRole("button", { name: "Profile menu" }).click();
-    await expect(page.getByText("Arjun Murugesan")).toBeVisible();
-    await expect(page.getByText(MEMBER.email)).toBeVisible();
+    // Dropdown is the z-50 panel inside the nav — scope to it
+    const dropdown = page.locator("nav .z-50").first();
+    await expect(dropdown.getByText("Arjun Murugesan")).toBeVisible();
+    await expect(dropdown.getByText(MEMBER.email)).toBeVisible();
   });
 
   test("profile dropdown contains My Profile and Sign Out", async ({ page }) => {

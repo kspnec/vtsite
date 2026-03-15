@@ -44,9 +44,8 @@ test.describe("Leaderboard", () => {
     await page.goto("/leaderboard");
     await page.getByRole("button", { name: /College/ }).click();
     const entries = page.locator("a[href^='/profiles/']");
-    await expect(entries.first()).toBeVisible();
-    const count = await entries.count();
-    expect(count).toBeGreaterThan(0);
+    // Wait up to 10s for at least one entry to appear after filter change
+    await expect(entries.first()).toBeVisible({ timeout: 10000 });
   });
 
   test("working filter shows entries", async ({ page }) => {
