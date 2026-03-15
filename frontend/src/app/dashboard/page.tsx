@@ -4,8 +4,10 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile, uploadPhoto, UserAdminView, CurrentStatus, EducationStage, CollegeDomain, AchievementOut } from "@/lib/api";
 import { AvatarPicker, SpaceAvatarDisplay } from "@/components/SpaceAvatar";
+import AccoladeSection from "@/components/AccoladeSection";
+import { useSpaceTheme, THEME_OPTIONS, SpaceTheme } from "@/context/ThemeContext";
 
-type Tab = "profile" | "education" | "avatar";
+type Tab = "profile" | "education" | "avatar" | "appearance";
 
 const STATUSES: { value: CurrentStatus; label: string }[] = [
   { value: "job", label: "Working / Job" },
@@ -35,6 +37,7 @@ const ACHIEVEMENT_CATEGORY_ICONS: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user, token, setSession, isApproved } = useAuth();
+  const { theme: spaceTheme, setTheme: setSpaceTheme } = useSpaceTheme();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<Tab>("profile");
@@ -186,15 +189,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
-        {(["profile", "education", "avatar"] as Tab[]).map(t => (
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {(["avatar", "profile", "education", "appearance"] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors capitalize ${
               tab === t
                 ? "bg-gradient-to-r from-cyan-600/80 to-purple-600/80 text-white border border-cyan-500/30"
                 : "glass text-slate-400 border border-white/5 hover:border-cyan-500/20 hover:text-slate-200"
             }`}>
-            {t === "profile" ? "👤 Profile" : t === "education" ? "🎓 Education & Skills" : "🚀 Avatar"}
+            {t === "avatar" ? "🚀 Avatar" : t === "profile" ? "👤 Profile" : t === "education" ? "🎓 Education & Skills" : "🎨 Appearance"}
           </button>
         ))}
       </div>
@@ -301,7 +304,10 @@ export default function DashboardPage() {
 
         {tab === "avatar" && (
           <div className="glass rounded-2xl p-6 space-y-6">
-            <AvatarPicker selected={form.avatar_key || null} onSelect={key => set("avatar_key", key)} />
+            <AvatarPicker
+              selected={form.avatar_key || null}
+              onSelect={key => set("avatar_key", key)}
+            />
             <div className="border-t border-white/5 pt-4">
               <p className="text-sm font-medium text-slate-300 mb-3">Or upload your own photo</p>
               <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
@@ -309,9 +315,6 @@ export default function DashboardPage() {
                 {uploading ? "Uploading…" : "📸 Upload Photo"}
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
-              {user.photo_url && (
-                <p className="text-xs text-slate-500 mt-2">Current: custom photo uploaded. Choose an avatar above to switch to space avatar.</p>
-              )}
             </div>
           </div>
         )}
@@ -319,10 +322,45 @@ export default function DashboardPage() {
         {error && <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-4 py-2.5 rounded-xl mt-4">{error}</p>}
         {success && <p className="text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 rounded-xl mt-4">Profile saved!</p>}
 
-        <button type="submit" disabled={saving} className="btn-primary w-full py-2.5 rounded-xl mt-4">
-          {saving ? "Saving…" : "Save Changes"}
-        </button>
+        {tab !== "appearance" && (
+          <button type="submit" disabled={saving} className="btn-primary w-full py-2.5 rounded-xl mt-4">
+            {saving ? "Saving…" : "Save Changes"}
+          </button>
+        )}
       </form>
+
+      {/* Appearance tab — outside form, instant localStorage save */}
+      {tab === "appearance" && (
+        <div className="glass rounded-2xl p-6 space-y-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-200 mb-1">Space Background Theme</h2>
+            <p className="text-xs text-slate-500 mb-4">Choose the animation style for your cosmic experience. Changes apply instantly.</p>
+            <div className="space-y-2">
+              {THEME_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSpaceTheme(opt.value as SpaceTheme)}
+                  className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl border text-left transition-all ${
+                    spaceTheme === opt.value
+                      ? "bg-cyan-500/10 border-cyan-500/40 text-slate-100"
+                      : "glass border-white/8 text-slate-400 hover:border-cyan-500/20 hover:text-slate-200"
+                  }`}
+                >
+                  <span className="text-2xl">{opt.icon}</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{opt.label}</p>
+                    <p className="text-xs text-slate-500">{opt.desc}</p>
+                  </div>
+                  {spaceTheme === opt.value && (
+                    <span className="text-cyan-400 text-sm font-semibold">✓</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Achievements */}
       {achievements.length > 0 && (
@@ -342,6 +380,13 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* My accolades */}
+      {user && (
+        <div className="mt-6">
+          <AccoladeSection userId={user.id} isOwnProfile={true} />
         </div>
       )}
     </div>

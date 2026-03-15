@@ -1,17 +1,23 @@
-const AVATAR_CONFIGS: Record<string, { bg: string; icon: string; glow: string }> = {
-  "cosmos-1": { bg: "from-cyan-400 to-blue-600", icon: "🌌", glow: "rgba(34,211,238,0.4)" },
-  "cosmos-2": { bg: "from-purple-400 to-pink-600", icon: "🪐", glow: "rgba(168,85,247,0.4)" },
-  "cosmos-3": { bg: "from-emerald-400 to-cyan-600", icon: "⭐", glow: "rgba(52,211,153,0.4)" },
-  "cosmos-4": { bg: "from-amber-400 to-orange-600", icon: "☀️", glow: "rgba(251,191,36,0.4)" },
-  "cosmos-5": { bg: "from-blue-400 to-indigo-600", icon: "🌠", glow: "rgba(96,165,250,0.4)" },
-  "cosmos-6": { bg: "from-rose-400 to-pink-600", icon: "💫", glow: "rgba(251,113,133,0.4)" },
-  "cosmos-7": { bg: "from-teal-400 to-emerald-600", icon: "🌍", glow: "rgba(45,212,191,0.4)" },
-  "cosmos-8": { bg: "from-violet-400 to-purple-600", icon: "🔭", glow: "rgba(167,139,250,0.4)" },
-  "cosmos-9": { bg: "from-sky-400 to-cyan-600", icon: "🚀", glow: "rgba(56,189,248,0.4)" },
-  "cosmos-10": { bg: "from-fuchsia-400 to-rose-600", icon: "🌸", glow: "rgba(232,121,249,0.4)" },
-  "cosmos-11": { bg: "from-lime-400 to-green-600", icon: "🌱", glow: "rgba(163,230,53,0.4)" },
-  "cosmos-12": { bg: "from-orange-400 to-amber-600", icon: "🏆", glow: "rgba(251,146,60,0.4)" },
+// DiceBear "bottts" avatars — robot/space illustrated style.
+// Seeds are fixed so each cosmos key always resolves to the same avatar.
+const AVATAR_CONFIGS: Record<string, { seed: string; glow: string }> = {
+  "cosmos-1":  { seed: "stardust",   glow: "rgba(34,211,238,0.5)" },
+  "cosmos-2":  { seed: "nebula",     glow: "rgba(168,85,247,0.5)" },
+  "cosmos-3":  { seed: "pulsar",     glow: "rgba(52,211,153,0.5)" },
+  "cosmos-4":  { seed: "solaris",    glow: "rgba(251,191,36,0.5)" },
+  "cosmos-5":  { seed: "andromeda",  glow: "rgba(96,165,250,0.5)" },
+  "cosmos-6":  { seed: "quasar",     glow: "rgba(251,113,133,0.5)" },
+  "cosmos-7":  { seed: "vega",       glow: "rgba(45,212,191,0.5)" },
+  "cosmos-8":  { seed: "orion",      glow: "rgba(167,139,250,0.5)" },
+  "cosmos-9":  { seed: "cassini",    glow: "rgba(56,189,248,0.5)" },
+  "cosmos-10": { seed: "lyra",       glow: "rgba(232,121,249,0.5)" },
+  "cosmos-11": { seed: "kepler",     glow: "rgba(163,230,53,0.5)" },
+  "cosmos-12": { seed: "voyager",    glow: "rgba(251,146,60,0.5)" },
 };
+
+function dicebearUrl(seed: string) {
+  return `https://api.dicebear.com/9.x/bottts/svg?seed=${seed}&backgroundColor=transparent`;
+}
 
 export function SpaceAvatarDisplay({ avatarKey, size = 64, name }: { avatarKey: string; size?: number; name?: string }) {
   const config = AVATAR_CONFIGS[avatarKey];
@@ -20,7 +26,7 @@ export function SpaceAvatarDisplay({ avatarKey, size = 64, name }: { avatarKey: 
     const initials = (name ?? "?").split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
     return (
       <div
-        className={`rounded-2xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0`}
+        className="rounded-2xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0"
         style={{ width: size, height: size }}
       >
         <span className="text-white font-bold" style={{ fontSize: size * 0.35 }}>{initials}</span>
@@ -29,10 +35,17 @@ export function SpaceAvatarDisplay({ avatarKey, size = 64, name }: { avatarKey: 
   }
   return (
     <div
-      className={`rounded-2xl bg-gradient-to-br ${config.bg} flex items-center justify-center flex-shrink-0`}
-      style={{ width: size, height: size, boxShadow: `0 0 20px ${config.glow}` }}
+      className="rounded-2xl bg-[#0a1628] flex items-center justify-center flex-shrink-0 overflow-hidden"
+      style={{ width: size, height: size, boxShadow: `0 0 16px ${config.glow}` }}
     >
-      <span style={{ fontSize: size * 0.45 }}>{config.icon}</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={dicebearUrl(config.seed)}
+        alt={avatarKey}
+        width={size}
+        height={size}
+        style={{ width: "85%", height: "85%", objectFit: "contain" }}
+      />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getInitiatives, joinInitiative, leaveInitiative, createInitiative, InitiativeOut, InitiativeStatus, InitiativeCategory } from "@/lib/api";
+import { getInitiatives, getProfiles, joinInitiative, leaveInitiative, createInitiative, deleteInitiative, updateInitiative, InitiativeOut, InitiativeStatus, InitiativeCategory, UserPublic } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import RequireAuth from "@/components/RequireAuth";
 
 const STATUS_STYLES: Record<InitiativeStatus, { label: string; color: string }> = {
   planned: { label: "Planned", color: "bg-slate-500/10 text-slate-400 border-slate-500/25" },
@@ -24,9 +25,12 @@ export default function InitiativesPage() {
   const [filterStatus, setFilterStatus] = useState<InitiativeStatus | "">("");
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [members, setMembers] = useState<UserPublic[]>([]);
+  const [memberSearch, setMemberSearch] = useState("");
   const [newForm, setNewForm] = useState({
     title: "", description: "", status: "planned" as InitiativeStatus,
     category: "education" as InitiativeCategory, start_date: "", end_date: "",
+    lead_user_id: 0,
   });
 
   const load = () => {
@@ -37,6 +41,13 @@ export default function InitiativesPage() {
   };
 
   useEffect(() => { load(); }, [filterStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch members when create form opens (for PIC picker)
+  useEffect(() => {
+    if (showCreate && members.length === 0) {
+      getProfiles().then(setMembers).catch(() => {});
+    }
+  }, [showCreate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleJoin = async (id: number) => {
     if (!token) return;
@@ -50,24 +61,47 @@ export default function InitiativesPage() {
     setInitiatives(prev => prev.map(i => i.id === id ? updated : i));
   };
 
+  const handleDelete = async (id: number) => {
+    if (!token || !confirm("Delete this initiative? This cannot be undone.")) return;
+    await deleteInitiative(token, id);
+    setInitiatives(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleStatusChange = async (id: number, status: InitiativeStatus) => {
+    if (!token) return;
+    const updated = await updateInitiative(token, id, { status });
+    setInitiatives(prev => prev.map(i => i.id === id ? updated : i));
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    if (!token || !newForm.lead_user_id) return;
     setCreating(true);
     try {
       const created = await createInitiative(token, {
-        ...newForm,
+        title: newForm.title,
+        description: newForm.description || undefined,
+        status: newForm.status,
+        category: newForm.category,
+        lead_user_id: newForm.lead_user_id,
         start_date: newForm.start_date || undefined,
         end_date: newForm.end_date || undefined,
       });
       setInitiatives(prev => [created, ...prev]);
       setShowCreate(false);
-      setNewForm({ title: "", description: "", status: "planned", category: "education", start_date: "", end_date: "" });
+      setNewForm({ title: "", description: "", status: "planned", category: "education", start_date: "", end_date: "", lead_user_id: 0 });
+      setMemberSearch("");
     } catch { /* ignore */ }
     finally { setCreating(false); }
   };
 
+  const selectedLead = members.find(m => m.id === newForm.lead_user_id);
+  const filteredMembers = memberSearch.trim()
+    ? members.filter(m => m.full_name.toLowerCase().includes(memberSearch.toLowerCase()))
+    : members;
+
   return (
+    <RequireAuth>
     <div className="max-w-4xl mx-auto px-4 py-10 animate-fade-in">
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -91,6 +125,51 @@ export default function InitiativesPage() {
               className="space-input w-full px-4 py-2.5 rounded-xl" placeholder="Initiative title *" />
             <textarea rows={3} value={newForm.description} onChange={e => setNewForm(f => ({...f, description: e.target.value}))}
               className="space-input w-full px-4 py-2.5 rounded-xl resize-none" placeholder="Description…" />
+
+            {/* PIC / Leader — required */}
+            <div>
+              <label className="block text-xs text-slate-400 mb-1.5 font-medium">
+                👤 Lead / PIC <span className="text-red-400">*</span>
+                <span className="text-slate-600 font-normal ml-1">(Person in Charge — drives this initiative)</span>
+              </label>
+              {selectedLead ? (
+                <div className="flex items-center justify-between px-4 py-2.5 space-input rounded-xl">
+                  <span className="text-sm text-slate-200">{selectedLead.full_name}</span>
+                  <button type="button" onClick={() => { setNewForm(f => ({...f, lead_user_id: 0})); setMemberSearch(""); }}
+                    className="text-xs text-slate-500 hover:text-red-400 transition-colors ml-2">✕ Change</button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <input
+                    value={memberSearch}
+                    onChange={e => setMemberSearch(e.target.value)}
+                    className="space-input w-full px-4 py-2.5 rounded-xl"
+                    placeholder="Search member name…"
+                  />
+                  {memberSearch && filteredMembers.length > 0 && (
+                    <div className="absolute z-20 w-full mt-1 glass rounded-xl border border-white/10 shadow-xl max-h-48 overflow-y-auto">
+                      {filteredMembers.slice(0, 8).map(m => (
+                        <button key={m.id} type="button"
+                          onClick={() => { setNewForm(f => ({...f, lead_user_id: m.id})); setMemberSearch(""); }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-white/5 hover:text-slate-100 transition-colors flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-bold">{m.full_name[0]}</span>
+                          </div>
+                          {m.full_name}
+                          {m.village_area && <span className="text-xs text-slate-500">· {m.village_area}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {memberSearch && filteredMembers.length === 0 && (
+                    <div className="absolute z-20 w-full mt-1 glass rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-500">
+                      No members found
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <select value={newForm.category} onChange={e => setNewForm(f => ({...f, category: e.target.value as InitiativeCategory}))}
                 className="space-input px-4 py-2.5 rounded-xl bg-transparent">
@@ -115,9 +194,13 @@ export default function InitiativesPage() {
                   className="space-input w-full px-4 py-2 rounded-xl" />
               </div>
             </div>
-            <button type="submit" disabled={creating} className="btn-primary w-full py-2.5 rounded-xl">
+            <button type="submit" disabled={creating || !newForm.lead_user_id}
+              className="btn-primary w-full py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed">
               {creating ? "Creating…" : "Create Initiative"}
             </button>
+            {!newForm.lead_user_id && (
+              <p className="text-xs text-amber-400 text-center">Select a Lead / PIC to create the initiative</p>
+            )}
           </form>
         </div>
       )}
@@ -148,18 +231,33 @@ export default function InitiativesPage() {
           {initiatives.map(initiative => {
             const statusStyle = STATUS_STYLES[initiative.status];
             return (
-              <div key={initiative.id} className="glass rounded-2xl p-5 hover:border-cyan-500/20 border border-white/5 transition-all">
+              <div key={initiative.id} className="glass rounded-2xl p-5 hover:border-cyan-500/20 border border-white/5 transition-all group">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xl">{CATEGORY_EMOJI[initiative.category]}</span>
-                    <h3 className="font-semibold text-slate-100">{initiative.title}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${statusStyle.color}`}>
-                      {statusStyle.label}
-                    </span>
+                    <Link href={`/initiatives/${initiative.id}`} className="font-semibold text-slate-100 hover:text-cyan-400 transition-colors">
+                      {initiative.title}
+                    </Link>
+                    {isAdmin ? (
+                      <select
+                        value={initiative.status}
+                        onChange={e => handleStatusChange(initiative.id, e.target.value as InitiativeStatus)}
+                        className={`text-xs px-2 py-0.5 rounded-full border font-medium cursor-pointer bg-transparent appearance-none ${statusStyle.color}`}
+                        title="Change status"
+                      >
+                        <option value="planned" className="bg-[#030b1a] text-slate-300">Planned</option>
+                        <option value="ongoing" className="bg-[#030b1a] text-slate-300">Ongoing</option>
+                        <option value="completed" className="bg-[#030b1a] text-slate-300">Completed</option>
+                      </select>
+                    ) : (
+                      <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${statusStyle.color}`}>
+                        {statusStyle.label}
+                      </span>
+                    )}
                   </div>
-                  {(isApproved || isAdmin) && (
-                    <div className="flex-shrink-0">
-                      {initiative.is_participant ? (
+                  <div className="flex-shrink-0 flex items-center gap-2">
+                    {(isApproved || isAdmin) && (
+                      initiative.is_participant ? (
                         <button onClick={() => handleLeave(initiative.id)}
                           className="text-xs px-3 py-1.5 rounded-lg border border-red-500/25 text-red-400 hover:bg-red-500/10 transition-colors">
                           Leave
@@ -169,9 +267,16 @@ export default function InitiativesPage() {
                           className="text-xs px-3 py-1.5 rounded-lg border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition-colors">
                           + Join
                         </button>
-                      )}
-                    </div>
-                  )}
+                      )
+                    )}
+                    {isAdmin && (
+                      <button onClick={() => handleDelete(initiative.id)}
+                        className="text-xs px-3 py-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        title="Delete initiative">
+                        🗑
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {initiative.description && (
@@ -179,8 +284,10 @@ export default function InitiativesPage() {
                 )}
 
                 <div className="flex items-center gap-4 text-xs text-slate-500 flex-wrap">
-                  {initiative.lead_user && (
+                  {initiative.lead_user ? (
                     <span>👤 Led by <Link href={`/profiles/${initiative.lead_user.id}`} className="text-cyan-400 hover:text-cyan-300">{initiative.lead_user.full_name}</Link></span>
+                  ) : isAdmin && (
+                    <span className="text-amber-400">⚠️ No PIC</span>
                   )}
                   {initiative.start_date && <span>📅 {initiative.start_date}</span>}
                   {initiative.end_date && <span>🏁 {initiative.end_date}</span>}
@@ -217,5 +324,6 @@ export default function InitiativesPage() {
         </div>
       )}
     </div>
+    </RequireAuth>
   );
 }

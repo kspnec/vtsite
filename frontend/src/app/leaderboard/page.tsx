@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getLeaderboard, LeaderboardEntry } from "@/lib/api";
 import { SpaceAvatarDisplay } from "@/components/SpaceAvatar";
 import Link from "next/link";
+import RequireAuth from "@/components/RequireAuth";
 
 type Category = "all" | "school_primary" | "school_middle" | "school_high" | "school_higher" | "college" | "working";
 
@@ -36,6 +37,7 @@ export default function LeaderboardPage() {
   }, [category]);
 
   return (
+    <RequireAuth>
     <div className="max-w-3xl mx-auto px-4 py-10 animate-fade-in">
       <div className="text-center mb-10">
         <div className="text-4xl mb-3">🏆</div>
@@ -112,5 +114,6 @@ export default function LeaderboardPage() {
         </div>
       )}
     </div>
+    </RequireAuth>
   );
 }

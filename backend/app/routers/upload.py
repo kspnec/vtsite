@@ -29,5 +29,6 @@ async def upload_profile_photo(
 
     url = upload_photo(contents, current_user.id)
     current_user.photo_url = url
+    current_user.avatar_key = None  # photo takes precedence; clear space avatar
     db.commit()
     return {"photo_url": url}

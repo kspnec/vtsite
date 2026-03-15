@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { cleanupTestUsers } from "./helpers";
 
 const ADMIN = { email: "admin@village.com", password: "admin123" };
 
@@ -10,6 +11,10 @@ async function loginAsAdmin(page: Page) {
   // Admin is redirected to /admin (not /dashboard) after login
   await expect(page).toHaveURL("/admin");
 }
+
+test.afterAll(async () => {
+  await cleanupTestUsers("pending_");
+});
 
 test.describe("Admin Panel", () => {
   test("non-admin is redirected away from /admin", async ({ page }) => {
@@ -49,40 +54,38 @@ test.describe("Admin Panel", () => {
     expect(count).toBeGreaterThan(5);
   });
 
-  test("admin navbar shows Admin link", async ({ page }) => {
+  test("admin navbar shows Admin Panel link in profile dropdown", async ({ page }) => {
     await loginAsAdmin(page);
-    await expect(page.getByRole("link", { name: "Admin" })).toBeVisible();
+    // Open the profile dropdown
+    await page.getByRole("button", { name: "Profile menu" }).click();
+    await expect(page.getByRole("link", { name: "Admin Panel" })).toBeVisible();
   });
 
-  test("admin can approve a newly signed-up user", async ({ page }) => {
-    // Sign up a new user via UI
-    const unique = Date.now();
-    const newEmail = `pending_${unique}@test.com`;
+  test("admin can approve a newly signed-up user", async ({ page, request }) => {
+    // Use unique email to avoid conflicts in parallel test runs
+    const id = `${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const newEmail = `pending_${id}@test.com`;
+    const signupRes = await request.post("http://localhost:8000/auth/signup", {
+      data: { email: newEmail, password: "testpass123", full_name: "Pending Approval" },
+    });
+    expect(signupRes.ok()).toBeTruthy();
 
-    await page.goto("/auth/signup");
-    await page.getByPlaceholder("Your full name").fill("Pending Member");
-    await page.getByPlaceholder("you@example.com").fill(newEmail);
-    await page.getByPlaceholder("Min 6 chars").fill("testpass123");
-    await page.getByPlaceholder("Repeat").fill("testpass123");
-    await page.getByRole("button", { name: "Join Village Connect" }).click();
-    // After signup, auto-login brings user to dashboard with pending banner
-    await expect(page).toHaveURL("/dashboard");
-    await expect(page.getByText(/pending admin approval/i)).toBeVisible();
-
-    // Log in as admin and approve
+    // Log in as admin and go to pending tab
     await loginAsAdmin(page);
-    await expect(page.getByRole("button", { name: /Pending/ })).toBeVisible();
+    await page.getByRole("button", { name: /Pending/ }).click();
+    await page.waitForLoadState("networkidle");
 
-    // Find the Approve button for the new user and click it
-    const approveBtn = page.getByRole("button", { name: "Approve" }).first();
-    await expect(approveBtn).toBeVisible();
-    await approveBtn.click();
+    // Wait for the pending user row containing the new email to appear
+    const userRow = page.locator(".glass.rounded-2xl", { hasText: newEmail });
+    await expect(userRow).toBeVisible({ timeout: 10000 });
 
-    // After approval, re-check that the pending list refreshes
-    await page.waitForTimeout(500);
-    // Switch to All Members to confirm the user is now approved
+    // Click Approve on that specific row
+    await userRow.getByRole("button", { name: "Approve" }).click();
+
+    // After approval the page re-fetches; switch to All Members to confirm
     await page.getByRole("button", { name: /All Members/ }).click();
-    const approvedBadges = page.locator("span", { hasText: "Approved" });
-    await expect(approvedBadges.first()).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    // The approved user should now appear in All Members
+    await expect(page.locator(".glass.rounded-2xl", { hasText: newEmail })).toBeVisible({ timeout: 8000 });
   });
 });

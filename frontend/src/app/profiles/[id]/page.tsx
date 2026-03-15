@@ -2,6 +2,9 @@ import { getProfile, AchievementOut } from "@/lib/api";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SpaceAvatarDisplay } from "@/components/SpaceAvatar";
+import AccoladeSection from "@/components/AccoladeSection";
+import ProfilePhoto from "@/components/ProfilePhoto";
+import RequireAuth from "@/components/RequireAuth";
 
 const STATUS_LABELS: Record<string, string> = {
   job: "Working",
@@ -66,6 +69,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     .toUpperCase();
 
   return (
+    <RequireAuth>
     <div className="max-w-2xl mx-auto px-4 py-12 animate-fade-in">
       <Link href="/" className="text-sm text-slate-500 hover:text-cyan-400 flex items-center gap-1 mb-8 transition-colors">
         ← Back to all profiles
@@ -77,25 +81,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_0)] bg-[length:24px_24px]" />
         </div>
 
-        <div className="px-8 pb-8 -mt-12">
+        <div className="px-8 pb-8 -mt-12 relative z-10">
           {/* Avatar */}
           <div className="mb-4">
-            {profile.photo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profile.photo_url}
-                alt={profile.full_name}
-                width={96}
-                height={96}
-                className="w-24 h-24 rounded-3xl object-cover border-2 border-cyan-500/30 shadow-lg shadow-cyan-500/10"
-              />
-            ) : profile.avatar_key ? (
-              <SpaceAvatarDisplay avatarKey={profile.avatar_key} size={96} name={profile.full_name} />
-            ) : (
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center border-2 border-white/10 shadow-lg">
-                <span className="text-white font-bold text-3xl">{initials}</span>
-              </div>
-            )}
+            <ProfilePhoto
+              photoUrl={profile.photo_url}
+              avatarKey={profile.avatar_key}
+              name={profile.full_name}
+              initials={initials}
+            />
           </div>
 
           <div className="flex items-start justify-between flex-wrap gap-3">
@@ -231,6 +225,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       )}
+
+      <div className="mt-6">
+        <AccoladeSection userId={profile.id} isOwnProfile={false} />
+      </div>
     </div>
+    </RequireAuth>
   );
 }

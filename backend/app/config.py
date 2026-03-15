@@ -24,6 +24,13 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google/callback"
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # SMTP / Email
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAIL_FROM: str = ""
+
     class Config:
         env_file = ".env"
 

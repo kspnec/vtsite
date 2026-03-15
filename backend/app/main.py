@@ -9,9 +9,12 @@ from app.config import settings
 from app.core.security import hash_password
 from app.database import Base, SessionLocal, engine
 from app.fixtures import seed_demo_profiles
-from app.models import User, Achievement, Initiative  # noqa: F401 - ensures tables are created
+from app.models import User, Achievement, Initiative, PasswordResetToken, Event, Accolade  # noqa: F401
+from app.models.notification import Notification  # noqa: F401
+from app.models.initiative_update import InitiativeProgressUpdate  # noqa: F401
 from app.routers import admin, auth, profiles, upload
 from app.routers import leaderboard, initiatives
+from app.routers import events, accolades, notifications
 
 app = FastAPI(
     title="VT Site API",
@@ -33,6 +36,9 @@ app.include_router(admin.router)
 app.include_router(upload.router)
 app.include_router(leaderboard.router)
 app.include_router(initiatives.router)
+app.include_router(events.router)
+app.include_router(accolades.router)
+app.include_router(notifications.router)
 
 # Serve locally-uploaded profile photos
 _uploads_dir = Path("/app/uploads")

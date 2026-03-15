@@ -11,7 +11,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setSession } = useAuth();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email_or_username: "", password: "" });
   const [error, setError] = useState(decodeURIComponent(searchParams.get("error") ?? ""));
   const [loading, setLoading] = useState(false);
 
@@ -20,9 +20,10 @@ function LoginForm() {
     setError("");
     setLoading(true);
     try {
-      const data = await login(form.email, form.password);
+      const data = await login(form.email_or_username, form.password);
       setSession(data.access_token, data.user);
-      router.push(data.user.is_admin ? "/admin" : "/dashboard");
+      const next = searchParams.get("next");
+      router.push(next || (data.user.is_admin ? "/admin" : "/dashboard"));
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -36,7 +37,7 @@ function LoginForm() {
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">👋</div>
           <h1 className="text-2xl font-bold text-slate-100">Welcome back</h1>
-          <p className="text-slate-400 mt-1">Sign in to your Village Connect account</p>
+          <p className="text-slate-400 mt-1">Sign in to your VTRockers Connect account</p>
         </div>
 
         <div className="glass rounded-2xl p-8">
@@ -45,7 +46,7 @@ function LoginForm() {
 
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-white/5" />
-            <span className="text-xs text-slate-500 font-medium">or sign in with email</span>
+            <span className="text-xs text-slate-500 font-medium">or continue with email</span>
             <div className="flex-1 h-px bg-white/5" />
           </div>
 
@@ -55,8 +56,8 @@ function LoginForm() {
               <input
                 type="email"
                 required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                value={form.email_or_username}
+                onChange={(e) => setForm({ ...form, email_or_username: e.target.value })}
                 className="space-input w-full px-4 py-2.5 rounded-xl"
                 placeholder="you@example.com"
               />
@@ -71,6 +72,11 @@ function LoginForm() {
                 className="space-input w-full px-4 py-2.5 rounded-xl"
                 placeholder="••••••••"
               />
+              <div className="text-right mt-1.5">
+                <Link href="/auth/forgot-password" className="text-xs text-cyan-400 hover:text-cyan-300">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             {error && (
@@ -87,7 +93,7 @@ function LoginForm() {
           </form>
 
           <p className="text-center text-sm text-slate-500 mt-6">
-            New to Village Connect?{" "}
+            New to VTRockers Connect?{" "}
             <Link href="/auth/signup" className="text-cyan-400 hover:text-cyan-300 font-medium">
               Join us
             </Link>

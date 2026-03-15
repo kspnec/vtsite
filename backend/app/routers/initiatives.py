@@ -7,9 +7,12 @@ from app.core.deps import get_current_user
 from app.core.security import decode_access_token
 from app.database import get_db
 from app.models.initiative import Initiative, initiative_participants  # noqa: F401
+from app.models.initiative_update import InitiativeProgressUpdate
+from app.models.notification import NotificationType
 from app.models.user import User
-from app.schemas.initiative import InitiativeCreate, InitiativeOut, InitiativeUpdate
+from app.schemas.initiative import InitiativeCreate, InitiativeOut, InitiativeUpdate, ProgressUpdateCreate, ProgressUpdateOut
 from app.schemas.user import UserPublic
+from app.services.notifications import notify
 
 router = APIRouter(prefix="/initiatives", tags=["initiatives"])
 
@@ -85,6 +88,9 @@ def create_initiative(
 ):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin only")
+    lead = db.query(User).filter(User.id == payload.lead_user_id, User.is_active == True).first()  # noqa: E712
+    if not lead:
+        raise HTTPException(status_code=400, detail="Lead user not found or inactive")
     initiative = Initiative(**payload.model_dump())
     db.add(initiative)
     db.commit()
@@ -138,7 +144,26 @@ def join_initiative(
     if not initiative:
         raise HTTPException(status_code=404, detail="Initiative not found")
     if current_user not in initiative.participants:
+        # Collect everyone to notify BEFORE appending the new member
+        existing_participant_ids = {p.id for p in initiative.participants}
+        # Add the lead to the notify set too (may not be a participant themselves)
+        if initiative.lead_user_id:
+            existing_participant_ids.add(initiative.lead_user_id)
+        # Remove the joiner themselves — don't self-notify
+        existing_participant_ids.discard(current_user.id)
+
         initiative.participants.append(current_user)
+
+        # Notify all existing members of this initiative group
+        msg = f"{current_user.full_name} joined the initiative \"{initiative.title}\""
+        for uid in existing_participant_ids:
+            notify(
+                db,
+                user_id=uid,
+                type=NotificationType.initiative_joined,
+                message=msg,
+                actor_id=current_user.id,
+            )
         db.commit()
         db.refresh(initiative)
     return _initiative_to_out(initiative, current_user)
@@ -158,3 +183,74 @@ def leave_initiative(
         db.commit()
         db.refresh(initiative)
     return _initiative_to_out(initiative, current_user)
+
+
+@router.get("/{initiative_id}/progress", response_model=list[ProgressUpdateOut])
+def list_progress_updates(
+    initiative_id: int,
+    current_user: Optional[User] = Depends(_optional_user),
+    db: Session = Depends(get_db),
+):
+    if not db.query(Initiative).filter(Initiative.id == initiative_id).first():
+        raise HTTPException(status_code=404, detail="Initiative not found")
+    updates = (
+        db.query(InitiativeProgressUpdate)
+        .filter(InitiativeProgressUpdate.initiative_id == initiative_id)
+        .order_by(InitiativeProgressUpdate.created_at.desc())
+        .all()
+    )
+    return [
+        ProgressUpdateOut(
+            id=u.id,
+            content=u.content,
+            author=u.author,
+            created_at=u.created_at,
+        )
+        for u in updates
+    ]
+
+
+@router.post("/{initiative_id}/progress", response_model=ProgressUpdateOut, status_code=201)
+def add_progress_update(
+    initiative_id: int,
+    payload: ProgressUpdateCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+    if not db.query(Initiative).filter(Initiative.id == initiative_id).first():
+        raise HTTPException(status_code=404, detail="Initiative not found")
+    update = InitiativeProgressUpdate(
+        initiative_id=initiative_id,
+        author_id=current_user.id,
+        content=payload.content,
+    )
+    db.add(update)
+    db.commit()
+    db.refresh(update)
+    return ProgressUpdateOut(
+        id=update.id,
+        content=update.content,
+        author=update.author,
+        created_at=update.created_at,
+    )
+
+
+@router.delete("/{initiative_id}/progress/{update_id}", status_code=204)
+def delete_progress_update(
+    initiative_id: int,
+    update_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+    update = db.query(InitiativeProgressUpdate).filter(
+        InitiativeProgressUpdate.id == update_id,
+        InitiativeProgressUpdate.initiative_id == initiative_id,
+    ).first()
+    if not update:
+        raise HTTPException(status_code=404, detail="Update not found")
+    db.delete(update)
+    db.commit()

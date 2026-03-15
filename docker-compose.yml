@@ -19,6 +19,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
     environment:
       DATABASE_URL: postgresql://vtsite:vtsite@db:5432/vtsite
       SECRET_KEY: dev-secret-key-change-in-production
@@ -54,3 +56,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:

@@ -312,4 +312,20 @@ def seed_demo_profiles(db) -> int:
             db.add(initiative)
         db.commit()
 
+    # Seed events if none exist
+    from app.models.event import Event, EventType
+    if db.query(Event).count() == 0:
+        from datetime import date, timedelta
+        admin = db.query(User).filter(User.is_admin == True).first()  # noqa: E712
+        today = date.today()
+        seed_events = [
+            Event(title="Pongal Village Celebration", description="Annual harvest festival with traditional games, kolam competition, and feast.", event_type=EventType.festival, event_date=today + timedelta(days=15), location="Village Common Ground", cover_emoji="🎉", created_by_id=admin.id if admin else None),
+            Event(title="Annual Sports Day", description="Inter-school and college sports competition. Track, field, kabaddi, cricket.", event_type=EventType.sports, event_date=today + timedelta(days=30), location="Village Grounds", cover_emoji="🏏", created_by_id=admin.id if admin else None),
+            Event(title="Republic Day Celebration", description="Flag hoisting, cultural programs, and patriotic songs.", event_type=EventType.cultural, event_date=today - timedelta(days=20), location="Village School", cover_emoji="🇮🇳", created_by_id=admin.id if admin else None),
+            Event(title="Career Guidance Workshop", description="Professionals from the village guide students on career choices and higher education.", event_type=EventType.educational, event_date=today + timedelta(days=7), location="Community Hall", cover_emoji="🎓", created_by_id=admin.id if admin else None),
+        ]
+        for ev in seed_events:
+            db.add(ev)
+        db.commit()
+
     return added
