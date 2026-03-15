@@ -13,6 +13,23 @@ class Settings(BaseSettings):
 
     FIRST_ADMIN_EMAIL: str = ""
     FIRST_ADMIN_PASSWORD: str = ""
+    SEED_DEMO_DATA: bool = False
+
+    # Used to build absolute URLs for locally-stored uploads
+    BACKEND_BASE_URL: str = "http://localhost:8000"
+
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google/callback"
+    FRONTEND_URL: str = "http://localhost:3000"
+
+    # SMTP / Email
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAIL_FROM: str = ""
 
     class Config:
         env_file = ".env"

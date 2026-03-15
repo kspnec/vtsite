@@ -19,6 +19,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
     environment:
       DATABASE_URL: postgresql://vtsite:vtsite@db:5432/vtsite
       SECRET_KEY: dev-secret-key-change-in-production
@@ -26,9 +28,15 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: 10080
       FIRST_ADMIN_EMAIL: admin@village.com
       FIRST_ADMIN_PASSWORD: admin123
+      SEED_DEMO_DATA: "true"
+      BACKEND_BASE_URL: "http://localhost:8000"
+      FRONTEND_URL: "http://localhost:3000"
       CLOUDINARY_CLOUD_NAME: ""
       CLOUDINARY_API_KEY: ""
       CLOUDINARY_API_SECRET: ""
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+      GOOGLE_REDIRECT_URI: "http://localhost:8000/auth/google/callback"
     depends_on:
       db:
         condition: service_healthy
@@ -41,8 +49,11 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    environment:
+      API_URL: http://backend:8000   # used by SSR/server components inside the container
     depends_on:
       - backend
 
 volumes:
   pgdata:
+  uploads:
