@@ -1,10 +1,12 @@
 name: CD
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches:
-      - main      # → production
-      - develop   # → staging
+      - main
+      - develop
   release:
     types: [published]
 
@@ -14,9 +16,19 @@ env:
   FRONTEND_IMAGE: ghcr.io/kspnec/vtsite-frontend
 
 jobs:
+  # ── Gate: only deploy if CI passed ────────────────────────
+  ci-gate:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'release' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: CI passed
+        run: echo "CI passed — proceeding with deployment"
+
   # ── Build & Push Backend ───────────────────────────────────
   build-backend:
     name: Build & Push · Backend
+    needs: ci-gate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -83,6 +95,7 @@ jobs:
   # ── Build & Push Frontend ──────────────────────────────────
   build-frontend:
     name: Build & Push · Frontend
+    needs: ci-gate
     runs-on: ubuntu-latest
     permissions:
       contents: read
