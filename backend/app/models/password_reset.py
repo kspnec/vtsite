@@ -9,7 +9,9 @@ from app.database import Base
 class PasswordResetToken(Base):
     __tablename__ = "password_reset_tokens"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     token = Column(String, unique=True, nullable=False, index=True)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     used = Column(Boolean, default=False, nullable=False)
@@ -24,4 +26,6 @@ class PasswordResetToken(Base):
 
     @property
     def is_valid(self) -> bool:
-        return not self.used and datetime.now(timezone.utc) < self.expires_at.replace(tzinfo=timezone.utc)
+        return not self.used and datetime.now(timezone.utc) < self.expires_at.replace(
+            tzinfo=timezone.utc
+        )

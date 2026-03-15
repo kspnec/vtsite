@@ -29,7 +29,8 @@ def test_login_unapproved(client):
         },
     )
     res = client.post(
-        "/auth/login", json={"email": "pending@village.com", "password": "pass123"}
+        "/auth/login",
+        json={"email_or_username": "pending@village.com", "password": "pass123"},
     )
     # unapproved users can log in but see pending state
     assert res.status_code == 200
@@ -42,7 +43,8 @@ def test_login_wrong_password(client):
         json={"email": "user@village.com", "password": "right", "full_name": "U"},
     )
     res = client.post(
-        "/auth/login", json={"email": "user@village.com", "password": "wrong"}
+        "/auth/login",
+        json={"email_or_username": "user@village.com", "password": "wrong"},
     )
     assert res.status_code == 401
 

@@ -39,7 +39,9 @@ def _event_to_out(event: Event, current_user: User | None = None) -> EventOut:
         end_date=event.end_date,
         location=event.location,
         cover_emoji=event.cover_emoji,
-        created_by=UserPublic.model_validate(event.created_by) if event.created_by else None,
+        created_by=UserPublic.model_validate(event.created_by)
+        if event.created_by
+        else None,
         created_at=event.created_at,
         attendees=[UserPublic.model_validate(a) for a in event.attendees],
         attendee_count=len(event.attendees),
@@ -49,12 +51,15 @@ def _event_to_out(event: Event, current_user: User | None = None) -> EventOut:
 
 @router.get("", response_model=list[EventOut])
 def list_events(
-    upcoming: bool | None = Query(None, description="true=upcoming, false=past, None=all"),
+    upcoming: bool | None = Query(
+        None, description="true=upcoming, false=past, None=all"
+    ),
     event_type: str | None = Query(None),
     current_user: User | None = Depends(_optional_user),
     db: Session = Depends(get_db),
 ):
     from datetime import date
+
     q = db.query(Event)
     if upcoming is True:
         q = q.filter(Event.event_date >= date.today())
@@ -134,7 +139,9 @@ def attend_event(
     db: Session = Depends(get_db),
 ):
     if not current_user.is_approved:
-        raise HTTPException(status_code=403, detail="Only approved members can attend events")
+        raise HTTPException(
+            status_code=403, detail="Only approved members can attend events"
+        )
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")

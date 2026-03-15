@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
@@ -40,7 +39,9 @@ def _optional_user(
         return None
 
 
-def _initiative_to_out(initiative: Initiative, current_user: User | None = None) -> InitiativeOut:
+def _initiative_to_out(
+    initiative: Initiative, current_user: User | None = None
+) -> InitiativeOut:
     participant_ids = {p.id for p in initiative.participants}
     return InitiativeOut(
         id=initiative.id,
@@ -48,7 +49,9 @@ def _initiative_to_out(initiative: Initiative, current_user: User | None = None)
         description=initiative.description,
         status=initiative.status,
         category=initiative.category,
-        lead_user=UserPublic.model_validate(initiative.lead_user) if initiative.lead_user else None,
+        lead_user=UserPublic.model_validate(initiative.lead_user)
+        if initiative.lead_user
+        else None,
         start_date=initiative.start_date,
         end_date=initiative.end_date,
         created_at=initiative.created_at,
@@ -94,7 +97,11 @@ def create_initiative(
 ):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin only")
-    lead = db.query(User).filter(User.id == payload.lead_user_id, User.is_active == True).first()  # noqa: E712
+    lead = (
+        db.query(User)
+        .filter(User.id == payload.lead_user_id, User.is_active == True)
+        .first()
+    )  # noqa: E712
     if not lead:
         raise HTTPException(status_code=400, detail="Lead user not found or inactive")
     initiative = Initiative(**payload.model_dump())
@@ -145,7 +152,9 @@ def join_initiative(
     db: Session = Depends(get_db),
 ):
     if not current_user.is_approved:
-        raise HTTPException(status_code=403, detail="Only approved members can join initiatives")
+        raise HTTPException(
+            status_code=403, detail="Only approved members can join initiatives"
+        )
     initiative = db.query(Initiative).filter(Initiative.id == initiative_id).first()
     if not initiative:
         raise HTTPException(status_code=404, detail="Initiative not found")
@@ -161,7 +170,7 @@ def join_initiative(
         initiative.participants.append(current_user)
 
         # Notify all existing members of this initiative group
-        msg = f"{current_user.full_name} joined the initiative \"{initiative.title}\""
+        msg = f'{current_user.full_name} joined the initiative "{initiative.title}"'
         for uid in existing_participant_ids:
             notify(
                 db,
@@ -216,7 +225,9 @@ def list_progress_updates(
     ]
 
 
-@router.post("/{initiative_id}/progress", response_model=ProgressUpdateOut, status_code=201)
+@router.post(
+    "/{initiative_id}/progress", response_model=ProgressUpdateOut, status_code=201
+)
 def add_progress_update(
     initiative_id: int,
     payload: ProgressUpdateCreate,
@@ -252,10 +263,14 @@ def delete_progress_update(
 ):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin only")
-    update = db.query(InitiativeProgressUpdate).filter(
-        InitiativeProgressUpdate.id == update_id,
-        InitiativeProgressUpdate.initiative_id == initiative_id,
-    ).first()
+    update = (
+        db.query(InitiativeProgressUpdate)
+        .filter(
+            InitiativeProgressUpdate.id == update_id,
+            InitiativeProgressUpdate.initiative_id == initiative_id,
+        )
+        .first()
+    )
     if not update:
         raise HTTPException(status_code=404, detail="Update not found")
     db.delete(update)

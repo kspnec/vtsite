@@ -47,7 +47,9 @@ class UserCreate(BaseModel):
         if not (3 <= len(v) <= 30):
             raise ValueError("Username must be between 3 and 30 characters")
         if not re.match(r"^[a-z0-9_]+$", v):
-            raise ValueError("Username may only contain lowercase letters, digits, and underscores")
+            raise ValueError(
+                "Username may only contain lowercase letters, digits, and underscores"
+            )
         return v
 
 

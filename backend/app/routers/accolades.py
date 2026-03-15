@@ -71,22 +71,36 @@ def give_accolade(
     db: Session = Depends(get_db),
 ):
     if not current_user.is_approved:
-        raise HTTPException(status_code=403, detail="Only approved members can give accolades")
+        raise HTTPException(
+            status_code=403, detail="Only approved members can give accolades"
+        )
     if payload.to_user_id == current_user.id:
-        raise HTTPException(status_code=400, detail="You cannot give an accolade to yourself")
+        raise HTTPException(
+            status_code=400, detail="You cannot give an accolade to yourself"
+        )
 
-    to_user = db.query(User).filter(User.id == payload.to_user_id, User.is_approved == True).first()  # noqa: E712
+    to_user = (
+        db.query(User)
+        .filter(User.id == payload.to_user_id, User.is_approved == True)
+        .first()
+    )  # noqa: E712
     if not to_user:
         raise HTTPException(status_code=404, detail="User not found")
 
     # Check if already given this category to this user
-    existing = db.query(Accolade).filter(
-        Accolade.from_user_id == current_user.id,
-        Accolade.to_user_id == payload.to_user_id,
-        Accolade.category == payload.category,
-    ).first()
+    existing = (
+        db.query(Accolade)
+        .filter(
+            Accolade.from_user_id == current_user.id,
+            Accolade.to_user_id == payload.to_user_id,
+            Accolade.category == payload.category,
+        )
+        .first()
+    )
     if existing:
-        raise HTTPException(status_code=409, detail="You've already given this accolade to this person")
+        raise HTTPException(
+            status_code=409, detail="You've already given this accolade to this person"
+        )
 
     accolade = Accolade(
         from_user_id=current_user.id,

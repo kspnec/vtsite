@@ -63,7 +63,9 @@ class User(Base):
     sports = Column(String, nullable=True)  # comma-separated
     activities = Column(String, nullable=True)  # comma-separated
     points = Column(Integer, default=0, nullable=False, server_default="0")
-    avatar_key = Column(String, nullable=True)  # key like "cosmos-1" for prebuilt avatars
+    avatar_key = Column(
+        String, nullable=True
+    )  # key like "cosmos-1" for prebuilt avatars
 
     # System fields
     is_active = Column(Boolean, default=True)

@@ -131,12 +131,20 @@ def delete_user(
     db.query(Accolade).filter(
         (Accolade.from_user_id == user_id) | (Accolade.to_user_id == user_id)
     ).delete(synchronize_session=False)
-    db.query(Achievement).filter(Achievement.user_id == user_id).delete(synchronize_session=False)
-    db.query(PasswordResetToken).filter(PasswordResetToken.user_id == user_id).delete(synchronize_session=False)
+    db.query(Achievement).filter(Achievement.user_id == user_id).delete(
+        synchronize_session=False
+    )
+    db.query(PasswordResetToken).filter(PasswordResetToken.user_id == user_id).delete(
+        synchronize_session=False
+    )
     db.query(Notification).filter(
         (Notification.user_id == user_id) | (Notification.actor_id == user_id)
     ).delete(synchronize_session=False)
-    db.execute(initiative_participants.delete().where(initiative_participants.c.user_id == user_id))
+    db.execute(
+        initiative_participants.delete().where(
+            initiative_participants.c.user_id == user_id
+        )
+    )
     db.execute(event_attendees.delete().where(event_attendees.c.user_id == user_id))
     db.delete(user)
     db.commit()
@@ -149,7 +157,9 @@ def make_admin(
     admin: User = Depends(get_admin_user),
 ):
     if user_id == admin.id:
-        raise HTTPException(status_code=400, detail="Cannot change your own admin status")
+        raise HTTPException(
+            status_code=400, detail="Cannot change your own admin status"
+        )
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -166,7 +176,9 @@ def remove_admin(
     admin: User = Depends(get_admin_user),
 ):
     if user_id == admin.id:
-        raise HTTPException(status_code=400, detail="Cannot remove your own admin status")
+        raise HTTPException(
+            status_code=400, detail="Cannot remove your own admin status"
+        )
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

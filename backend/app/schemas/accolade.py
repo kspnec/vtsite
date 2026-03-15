@@ -32,6 +32,7 @@ class AccoladeOut(BaseModel):
 
 class AccoladeSummary(BaseModel):
     """Compact version for profile cards."""
+
     category: AccoladeCategory
     emoji: str
     count: int

@@ -41,16 +41,26 @@ ACCOLADE_EMOJI = {
 class Accolade(Base):
     __tablename__ = "accolades"
     id = Column(Integer, primary_key=True, index=True)
-    from_user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    to_user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    from_user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    to_user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     category = Column(Enum(AccoladeCategory), nullable=False)
     message = Column(String(200), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    from_user = relationship("User", foreign_keys=[from_user_id], backref="given_accolades")
-    to_user = relationship("User", foreign_keys=[to_user_id], backref="received_accolades")
+    from_user = relationship(
+        "User", foreign_keys=[from_user_id], backref="given_accolades"
+    )
+    to_user = relationship(
+        "User", foreign_keys=[to_user_id], backref="received_accolades"
+    )
 
     __table_args__ = (
         # One accolade per (from_user, to_user, category) combination
-        UniqueConstraint("from_user_id", "to_user_id", "category", name="uq_accolade_per_category"),
+        UniqueConstraint(
+            "from_user_id", "to_user_id", "category", name="uq_accolade_per_category"
+        ),
     )

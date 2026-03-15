@@ -64,9 +64,7 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
     user = (
         db.query(User)
         .filter(User.is_active == True)  # noqa: E712
-        .filter(
-            (User.email == identifier) | (User.username == identifier)
-        )
+        .filter((User.email == identifier) | (User.username == identifier))
         .first()
     )
     if not user or not verify_password(payload.password, user.hashed_password):
@@ -91,7 +89,9 @@ def forgot_password(
         token_obj = PasswordResetToken.generate(user.id)
         db.add(token_obj)
         db.commit()
-        reset_url = f"{settings.FRONTEND_URL}/auth/reset-password?token={token_obj.token}"
+        reset_url = (
+            f"{settings.FRONTEND_URL}/auth/reset-password?token={token_obj.token}"
+        )
         send_password_reset_email(user.email, reset_url, user.full_name)
     return {"message": "If that email exists, a reset link has been sent."}
 
@@ -102,13 +102,15 @@ def reset_password(
     new_password: str = Body(...),
     db: Session = Depends(get_db),
 ):
-    token_obj = db.query(PasswordResetToken).filter(
-        PasswordResetToken.token == token
-    ).first()
+    token_obj = (
+        db.query(PasswordResetToken).filter(PasswordResetToken.token == token).first()
+    )
     if not token_obj or not token_obj.is_valid:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
     if len(new_password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        raise HTTPException(
+            status_code=400, detail="Password must be at least 6 characters"
+        )
     user = db.query(User).filter(User.id == token_obj.user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

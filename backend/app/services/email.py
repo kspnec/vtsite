@@ -36,7 +36,9 @@ def send_password_reset_email(to_email: str, reset_url: str, full_name: str) -> 
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = settings.EMAIL_FROM or settings.SMTP_USER or "noreply@villageconnect.app"
+    msg["From"] = (
+        settings.EMAIL_FROM or settings.SMTP_USER or "noreply@villageconnect.app"
+    )
     msg["To"] = to_email
     msg.attach(MIMEText(text_body, "plain"))
     msg.attach(MIMEText(html_body, "html"))
