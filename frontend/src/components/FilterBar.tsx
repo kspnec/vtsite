@@ -32,8 +32,8 @@ function FilterBarInner() {
           onClick={() => setStatus(s.value)}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
             current === s.value
-              ? "bg-green-600 text-white shadow-md shadow-green-200"
-              : "bg-white text-gray-600 hover:bg-green-50 hover:text-green-700 border border-gray-200"
+              ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+              : "glass text-slate-400 border border-white/5 hover:border-cyan-500/25 hover:text-cyan-300"
           }`}
         >
           {s.label}

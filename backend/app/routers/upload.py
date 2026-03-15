@@ -19,7 +19,9 @@ async def upload_profile_photo(
     db: Session = Depends(get_db),
 ):
     if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(status_code=400, detail="Only JPEG, PNG, or WebP images allowed")
+        raise HTTPException(
+            status_code=400, detail="Only JPEG, PNG, or WebP images allowed"
+        )
 
     contents = await file.read()
     if len(contents) > MAX_SIZE:
@@ -27,5 +29,6 @@ async def upload_profile_photo(
 
     url = upload_photo(contents, current_user.id)
     current_user.photo_url = url
+    current_user.avatar_key = None  # photo takes precedence; clear space avatar
     db.commit()
     return {"photo_url": url}

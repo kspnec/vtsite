@@ -1,12 +1,35 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.core.security import hash_password
 from app.database import Base, SessionLocal, engine
-from app.models.user import User
-from app.routers import admin, auth, profiles, upload
+from app.fixtures import seed_demo_profiles
+from app.models import (  # noqa: F401
+    Accolade,
+    Achievement,
+    Event,
+    Initiative,
+    PasswordResetToken,
+    User,
+)
+from app.models.initiative_update import InitiativeProgressUpdate  # noqa: F401
+from app.models.notification import Notification  # noqa: F401
+from app.routers import (
+    accolades,
+    admin,
+    auth,
+    events,
+    initiatives,
+    leaderboard,
+    notifications,
+    profiles,
+    upload,
+)
 
 app = FastAPI(
     title="VT Site API",
@@ -26,12 +49,38 @@ app.include_router(auth.router)
 app.include_router(profiles.router)
 app.include_router(admin.router)
 app.include_router(upload.router)
+app.include_router(leaderboard.router)
+app.include_router(initiatives.router)
+app.include_router(events.router)
+app.include_router(accolades.router)
+app.include_router(notifications.router)
+
+# Serve locally-uploaded profile photos
+_uploads_dir = Path("/app/uploads")
+try:
+    _uploads_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/static", StaticFiles(directory=str(_uploads_dir)), name="static")
+except (PermissionError, OSError):
+    pass
 
 
 @app.on_event("startup")
 def startup():
     Base.metadata.create_all(bind=engine)
     _seed_admin()
+    _seed_fixtures()
+
+
+def _seed_fixtures():
+    if not settings.SEED_DEMO_DATA:
+        return
+    db: Session = SessionLocal()
+    try:
+        added = seed_demo_profiles(db)
+        if added:
+            print(f"[startup] Seeded {added} demo profiles.")
+    finally:
+        db.close()
 
 
 def _seed_admin():
